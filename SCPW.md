@@ -2,78 +2,8 @@
 # 那些收藏数破万的经典番号
 
 NSFW⚠️! 未满18周岁，谢绝浏览！  
-番号数据📊整理自 Jable，涉及 Javascript 脚本代码：用于提取网页上的番号/标题及收藏人数。Javascript yyds! [了解 Chrome 开发者工具🔧][2]；  
-
-![Copilot.png][3]
-
-Powered by https://github.com/copilot/ , modified and organized by limbopro;
-
-```
-function codeExtract_jable() {
-    
-    // 数据整理制作阶段
-    // 请在演员或标签或分类页面使用本脚本 
-    // 当你可以看到 所有時間 本月熱門 本週熱門 今日熱門 时使用
-    // 即可复制页面上 所有番号及其名字
-    // 操作:打开 浏览器 -> 控制台 -> 复制并粘贴本脚本代码，回车!
-    // 再次运行本代码，按 上⬆️键 
-
-    var code = []
-    document.querySelectorAll('.video-img-box').forEach((x) => {
-        if (x !== null) {
-            var codetext = x.querySelector('h6.title').textContent // 番号及标题内容
-            var stars = x.querySelector('p.sub-title').textContent.toString().split('\n')
-            code.push((codetext + " 收藏人数 " + stars[2].toString().replace(/\s*/g, "")))
-        }
-    })
-
-    var list = code.join('\n')
-
-    // 数据复制阶段
-    const textarea = document.createElement('textarea') // 创建 textarea 元素 并将选中内容填充进去
-    textarea.id = 'wtfx' // ID 
-    document.body.appendChild(textarea)
-    textarea.value = list // 赋值
-    textarea.select(); // 选中
-    document.execCommand('copy', true); // 执行复制
-    document.querySelectorAll('[id=wtfx]').forEach((x) => { x.remove() }) // 用完删除该元素
-
-}
-
-codeExtract_jable()
-```
-
-```
-function codeExtract_javbus() {
-    
-    // 数据整理制作阶段
-    // 请在首页或分类页面或标签页面使用本脚本
-    // 即可复制页面上 所有番号及其名字
-    // 操作:打开 浏览器 -> 控制台 -> 复制并粘贴本脚本代码，回车!
-    // 再次运行本代码，按 上⬆️键 
-
-    var code = []
-    document.querySelectorAll('a.movie-box').forEach((x) => {
-        var codetext = x.querySelector('span[data-immersive-translate-walked]').querySelectorAll('date')[0].textContent
-        var title = x.querySelector('span[data-immersive-translate-walked]').firstChild.textContent
-        code.push(codetext + " " + title)
-    })
-
-    var list = code.join('\n')
-
-    // 数据复制阶段
-    const textarea = document.createElement('textarea') // 创建 textarea 元素 并将选中内容填充进去
-    textarea.id = 'wtfx' // ID 
-    document.body.appendChild(textarea)
-    textarea.value = list // 赋值
-    textarea.select(); // 选中
-    document.execCommand('copy', true); // 执行复制
-    document.querySelectorAll('[id=wtfx]').forEach((x) => { x.remove() }) // 用完删除该元素
-
-}
-
-codeExtract_javbus()
-```
+番号数据📊整理自 Jable，涉及 Javascript 脚本代码：用于提取网页上的番号/标题及收藏人数。
+原文：https://limbopro.com/archives/31512.html  
 
 ## 女优排名
 
