@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <title>今晚看什么？| 番号搜索, 番号随机推荐, 高清AV、免费AV、JAV线上看、免费AV、手机AV</title>
+  <link rel="icon" type="image/ico" href="https://limbopro.com/favicon.ico">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="番号随机推荐|番号搜索|高清AV、免费AV、JAV线上看、免费AV、手机AV">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <div class="container-search">
+
+
+
+    <!-- 翻译小部件容器 -->
+    <div id="google_translate_element">
+    </div>
+
+
+    <div class="header skiptranslate">
+      <a href="https://limbopro.com/tools/jwksm/" target="_self"><img src="https://limbopro.com/SearchX.png" alt="Logo"
+          width="100px"></a>
+      <h1 class="notranslate skiptranslate">今晚看什么？</h1>
+    </div>
+
+    <div id="display" class="display-box">
+      <br>
+      <p class='default'>点击下方按钮</p><span class='default'>随机抽取🎲</span>
+      <p class='default'>一个番号</p><br>
+      <p class='default'>或者</p><span class='default'>输入番号/关键字</span>
+      <p class='default'>进行搜索</p>
+    </div>
+
+    <div class="mb-4 notranslate">
+      <label for="category" class="block text-sm font-medium text-gray-700"><span
+          class="notranslate">选择分类</span></label>
+      <select class="notranslate" id="category" class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
+      </select>
+      <p style="display: inline;"><span class="notranslate">已抽</span>&nbsp<span id="countHas"></span>/<span
+          id="count"></span>=<span class="notranslate" id="percent">0%</span>;</p>
+    </div>
+
+    <button class="notranslate" id="randomBtn">随机抽取🎲</button>
+    <div class="search-area notranslate">
+      <input type="text" id="searchInput" placeholder="输入番号...">
+      <a id="searchBtn" href="#" target="_blank" class="search-btn">搜索</a>
+    </div>
+
+    <div class="search-area-google">
+      <!-- Google 搜索引擎的输入框 -->
+      <gcse:searchbox></gcse:searchbox>
+
+    </div>
+
+    <!-- Google 搜索引擎结果框 -->
+    <div class="search-results-google notranslate">
+      <gcse:searchresults></gcse:searchresults>
+    </div>
+
+  </div>
+
+  <div class="container-result notranslate skiptranslate">
+
+    <div id="history" class="history-area">
+      <div class="history-title"><span>记录：</span>（点击可自动填入搜索框，长按加入收藏）</div>
+      <div id="historyList" class="history-list"></div>
+      <button id="clearHistoryBtn" class="clear-history-btn">清除记录</button>
+    </div>
+
+    <div class="history-area">
+      <div class="history-title"><span>收藏：</span>（点击可自动填入搜索框）</div>
+      <div class="history-list" id="favoritesList"></div>
+      <button id="clearFavoritesBtn" class="clear-history-btn">清除收藏</button>
+    </div>
+
+    <!--公告栏-->
+    <div id="board" class="board-area">
+      <div class="board-title">
+        <h2>公告栏</h2>
+      </div>
+      <p class="notranslate">如番号内容与分类不匹配，请通过页面底部的<span>📧联系我们</span>提供的联系方式与我们反馈；</p>
+    </div>
+
+    <div class="footer">
+
+      <p style="font-size: xx-small; margin-bottom:25px;">
+        *番号<a href="https://limbopro.com/tools/jwksm/ori.json" target="_blank">数据库</a> (JSON)
+        最新更新至2025年，共计<span id="icount">1000+</span>部，精品中的精品；
+      </p>
+
+
+      <div class="nav-bar">
+        <div class="nav-item"><a target="_blank" href="https://limbopro.com/">🕸️博客主页</a> | </div>
+        <div class="nav-item"><a target="_blank" href="https://t.me/limboprossr">🍏博客频道</a> | </div>
+        <div class="nav-item"><a target="_blank" href="https://t.me/+5e-07nSCIsxiYzBl">🔞春潮频道</a> | </div>
+        <div class="nav-item"><a target="_blank" href="https://limbopro.com/archives/JAV_Recommendation.html">🔞番号推荐</a>
+          | </div>
+        <div class="nav-item"><a target="_blank" href="https://limbopro.com/btsearch.html">🔞番号搜索</a> |
+        </div>
+        <div class="nav-item"><a target="_blank" href="https://limbopro.com/search.html">🎬影视搜索</a> | </div>
+        <div class="nav-item"><a target="_blank" href="https://limbopro.com/archives/12904.html">🈲移除广告</a>
+          | </div>
+        <div class="nav-item"><a target="_blank" href="https://limbopro.com/865.html">✈️机场推荐</a> | </div>
+        <div class="nav-item"><a target="_blank" href="https://limbopro.com/6.html">📧联系我们</a></div>
+      </div>
+
+      <p class="nav-item" style="font-size: xx-small; margin-bottom:25px;">© 2025 <a
+          href="https://limbopro.com/">毒奶博客</a> (Limbopro) All
+        rights reserved.
+      </p>
+    </div>
+
+  </div>
+
+  <script async src="https://cse.google.com/cse.js?cx=77ba49c819b1d40d7">
+  </script>
+  <script src="script.js"></script>
+  <script src="https://limbopro.com/Adguard/Adblock4limbo.function.js"></script>
+  <script src="https://limbopro.com/tools/jwksm/thatJS.js"></script>
+
+
+  <script>
+    window.onload = function () {
+      // 这里的代码将在所有内容加载完毕后执行
+      console.log("页面所有内容加载完毕！");
+    };
+
+
+    function isScriptLoaded() {
+      // 检查全局 google 对象是否存在
+      if (window.google && window.google.search) {
+        console.log('Google Custom Search script is loaded and ready');
+        return true;
+      }
+
+      // 查找特定的 script 标签
+      const script = document.querySelector('script[src="https://cse.google.com/cse.js?cx=77ba49c819b1d40d7"]');
+      if (script && script.complete) {
+        console.log('Script tag is present and marked as complete');
+        return true;
+      }
+
+      console.log('oogle Custom Search script is not loaded');
+      return false;
+    }
+
+    // 执行检查
+    // isScriptLoaded();
+
+    // 等所有元素加载完毕后再执行
+
+    window.addEventListener('load',
+
+      function () {
+        setTimeout(() => {
+          document.getElementById('icount').innerText = uniqueById.length;
+        }, 3000);
+      }
+    );
+
+
+  </script>
+
+
+
+
+
+
+  <!-- Google 翻译插件 -->
+  <script type="text/javascript">
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({
+        pageLanguage: '',              // 原始语言：日文（内容主体）
+        includedLanguages: 'zh-CN,en',           // 可选翻译语言：简体中文
+        layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+        autoDisplay: false
+      }, 'google_translate_element');
+    }
+  </script>
+  <script type="text/javascript"
+    src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+  <style>
+    /* 翻译控件 */
+    #google_translate_element {
+      position: fixed;
+      top: 40px;
+      right: 10px;
+      z-index: 9999;
+      background: #fff;
+      padding: 5px;
+      border-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    /*
+    .goog-te-combo {
+      padding: 6px 10px;
+      font-size: 14px;
+    }
+    */
+
+    /* 隐藏 Google 横幅 */
+    /*
+    .goog-te-banner-frame.skiptranslate {
+      display: none !important;
+    }
+      */
+
+    /*
+    body {
+      top: 0 !important;
+    }
+      */
+  </style>
+
+
+
+
+</body>
+
+</html>
