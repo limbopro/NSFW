@@ -7,7 +7,7 @@ cp -r bestrated NSFW/jwksm
 cp -r mostwanted NSFW/jwksm
 cp -r others NSFW/jwksm
 rm /home/typecho/tools/NSFW/jwksm/bak2github.sh
-
+rm /home/typecho/tools/NSFW/jwksm/run-daily.sh
 
 echo -n "输入 1 确认提交GitHub，其他取消: "
 read input
