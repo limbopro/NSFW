@@ -2,7 +2,6 @@
 // 控制台获取 dataList 复制到 ori.json
 //// console.log(JSON.stringify(dataList, null, 2)); // 格式化输出，带缩进
 
-
 function oriJsonMake1() {
 
     // 将 dataList(全部) 转换为数组 去重 复制到 ori.json
@@ -41,6 +40,59 @@ function oriJsonMake1() {
 }
 
 // oriJsonMake1()
+
+
+
+//// 获取两个数组中番号重复的部分 
+// intersection(dataList['2025年最想要[已翻译]'],dataList['2025年最想要[未翻译]')
+function intersection(a, b) { // dataList['2025年最想要[已翻译]'] , dataList['2025年最想要[未翻译]']
+    const intersection = a.filter(itemA =>
+        b.some(itemB => itemB.番号 === itemA.番号)
+    );
+    console.log(JSON.stringify(intersection, null, 2));
+}
+
+
+
+
+
+
+
+
+
+// 若还有 D、E... 请继续添加
+// const arrays = [A, B, C];  // 按顺序排列：A→B→C→...
+// 多个数组中重复的部分
+
+function historyBest1(abcd) {
+    const arrays = abcd // 按顺序排列：A→B→C→
+    const result = [];
+
+    for (let i = 1; i < arrays.length; i++) {
+        const prev = arrays[i - 1];
+        const curr = arrays[i];
+
+        const prevCodes = new Set(prev.map(x => x.番号));
+        const duplicatesInCurrent = curr.filter(x => prevCodes.has(x.番号));
+
+        result.push(...duplicatesInCurrent);
+    }
+
+    console.log(JSON.stringify(result, null, 2));
+    return result;
+}
+
+// var ihistoryBest = historyBest1([dataList['出轨🍷'], dataList['巨乳🐻'], dataList['人妻👰'], dataList['泳装👙'], dataList['多P👥'], dataList['肉漫改编✍️'], dataList['办公室🤤'], dataList['制服诱惑👩🏻‍💼'], dataList['2025年最想要[未翻译]']])
+
+
+
+// [...A, ...B, ...C]
+// 假设 all 是你的综合数组，A 是要移除的参照数组
+// const allWithoutwfy = dataList['全部分类'].filter(item => 
+//   !dataList['2025年最想要[未翻译]'].some(a => a.番号 === item.番号)
+// );
+
+
 
 
 
@@ -85,7 +137,7 @@ function sortByFavoritesDesc(data) {
  * @returns {Array} 去重后的数组
  */
 
-function deduplicateByNumberMaxFav(data, label = '去重结果') {
+function deduplicateByNumberMaxFav(data, label = '去重结果', consoleChoice) {
     // ------------------- 统一转成数组 -------------------
     let arrayDataList;
     if (!Array.isArray(data)) {
@@ -119,13 +171,16 @@ function deduplicateByNumberMaxFav(data, label = '去重结果') {
     const result = Array.from(map.values()).map(({ __favNum, ...rest }) => rest);
 
     // ------------------- 控制台输出 JSON（美化格式） -------------------
-    console.log(`\n${label}:`);
-    console.log(JSON.stringify(result, null, 2));
+
+    if (consoleChoice == 'yes') {
+        console.log(`\n${label}:`);
+        console.log(JSON.stringify(result, null, 2));
+    }
 
     //return result;
 
     window.newjson = result;
-
+    return result
 }
 
 

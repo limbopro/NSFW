@@ -13,6 +13,40 @@ p#title {
 }*/
 
 
+button#up2Top {
+  font-size: xx-small;
+  border-radius: 0px !important;
+}
+
+.isoutView {
+  z-index: 114154;
+  display: flex;
+  position: fixed;
+  top: 160px;
+  right: 10px;
+}
+
+
+.isoutViewForm {
+  width: 100px;
+}
+
+button#down2bottom {
+  font-size: xx-small;
+  border-radius: 0px !important;
+  background-color: gray;
+}
+
+
+button#down2bottom:hover {
+  background: black;
+}
+
+/* 点击后的红色状态 */
+button#down2bottom:active {
+  background-color: red !important;
+}
+
 p.title,
 p.notranslate,
 p.default {
@@ -20,7 +54,112 @@ p.default {
   font-size: inherit;
 }
 
+
+
+
+.wrap {
+  overflow-x: hidden;
+  display: flex;
+  flex-wrap: wrap;
+  /* grid-template-columns: 1fr;*/
+  align-items: flex-start;
+  /* start → flex-start */
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  min-height: 100%;
+  top: 0;
+}
+
+
+
+/*
+ * 区域 A: 视口宽度 >= 880px (宽屏/桌面布局)
+ */
+@media (min-width: 880px) {
+
+  .scroll-content {
+    overflow-y: clip !important;
+    padding: 0px;
+    /*background-color:white;*/
+  }
+
+  .wrap {
+    display: grid !important;
+    height: 100vh;
+    width: 100vw;
+    grid-template-columns: 1fr 1fr;
+    /* 保持原有的居中和最大宽度技巧 */
+    padding: 0 calc((100vw - 870px) / 2) !important;
+  }
+
+  div.container-search {
+    position: relative !important;
+    grid-row: 1/9;
+    height: 420px;
+  }
+
+  div.container-result {
+    grid-row: 2/12;
+    height: 70vh;
+    margin-top: 0px !important;
+  }
+
+
+  div.container-fav {
+    grid-row: 9 / span 18;
+    height: 50vh;
+  }
+
+  .container-laji {
+    grid-row: 22 / 13;
+    height: 30vh;
+  }
+
+  .search-results-google {
+    z-index: 114154;
+  }
+}
+
+
+/* 视口宽度（viewport width）小于 880px 且 视口高度（viewport height）小于 790px 的情况，使用 and 连接两个条件 
+*/
+
+/* 现在的情况是宽是 750px 高是300px*/
+
+@media (max-width: 879px) and (max-height: 668px) {
+
+  /* 你的样式 */
+  div.container-search {
+    position: relative !important;
+  }
+
+  div.container-result {
+    position: relative !important;
+    margin-top: 0px !important;
+  }
+
+}
+
+
+
+.foott {
+  height: 216px;
+}
+
+
+/*
+ * 区域 B: 视口宽度 > 360px 且 <= 880px (新增加的区间布局)
+ */
+@media (min-width: 360px) and (max-width: 879px) {}
+
+
+
+
 body {
+  padding: 0;
+  /* 默认值，适用于小于等于800px */
+  overflow-x: hidden;
   overflow-y: scroll;
   width: 100%;
   box-sizing: border-box;
@@ -61,20 +200,64 @@ p {
 }
 
 .container-search>.header {
+  /*height: 96px;*/
+  height: auto;
+  align-items: baseline;
   margin-left: 0px !important;
-  height: 137px;
-  overflow: auto;
+  display: flex;
+  overflow-y: auto;
+  /*height: 137px;*/
+  /*overflow-y: auto;*/
 }
 
-.container-search {
-  z-index: 114154;
-  max-height: 520px;
+
+div.header>h1 {
+  font-size: 69px;
+  margin: 0px;
+}
+
+div.header>h2 {
+  font-size: 42px;
+  margin: 0px;
+}
+
+div.container-search {
   position: fixed;
+  height: 350px;
+  display: grid;
+  grid-template-rows: 50px 180px 40px 40px 40px 20px;
+  /*height: 388px;*/
+  height: auto;
+}
+
+div.container-footer {
+  height: 259px;
+}
+
+.history-title.container-result {
+  margin-top: 388px;
+}
+
+.container-search,
+.container-footer,
+.container-board,
+.container-output,
+.container-fav,
+.container-laji,
+.container-result,
+.translateOutput {
+  z-index: 0;
+  position: relative;
+  margin-bottom: 15px !important;
+  /*z-index: 1;*/
+  height: 420px;
+  /*position: fixed;*/
+  overflow-y: auto;
   top: 0px;
   width: 90vw;
   max-width: 400px;
   margin: 0 auto;
-  padding: 20px 10px 10px 10px;
+  padding: 0px 10px 10px 10px;
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
@@ -84,27 +267,27 @@ p {
   gap: 5px;
 }
 
+
+
 .hidden {
   z-index: 1;
 }
 
-.container-result {
-  padding-top: 460px;
-  width: 420px;
-  max-width: 400px;
-  margin: 0 auto;
-  padding: 6vw 4vw;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 10px;
-}
 
 .display-box {
+  min-height: 80px;
+  /*height: 80px !important;*/
+  margin-bottom: 0;
+  padding: 16px;
+  background: #e9ecef;
+  border-radius: 6px;
+  color: #333;
+  font-size: 1.1em;
+  word-break: break-all;
+  overflow-y: auto;
+}
+
+.output-box {
   min-height: 80px;
   margin-bottom: 0;
   padding: 16px;
@@ -114,6 +297,19 @@ p {
   font-size: 1.1em;
   word-break: break-all;
   overflow: auto;
+}
+
+/* 当屏幕视口（viewport）的宽度大于或等于 860 像素时，才应用 {...} 内部的 CSS 规则 */
+@media screen and (min-width: 860px) {
+  .display-box {
+    height: auto;
+    min-height: 80px !important;
+  }
+
+  div.container-search {
+    height: auto;
+    width: auto;
+  }
 }
 
 button {
@@ -131,6 +327,15 @@ button {
 button:hover {
   background: #0056b3;
 }
+
+
+span>button:hover {
+  background: red;
+  transform: scale(1.4);
+  filter: brightness(1.2);
+}
+
+
 
 .search-area {
   display: none;
@@ -181,8 +386,8 @@ input.gsc-input {
 
 .history-area {
   text-align: left;
-  margin-top: 15px;
-  padding: 8px 0 0 0;
+  margin-top: 0px;
+  padding: 2px 0 0 0;
   border-top: 1px solid #e9ecef;
 }
 
@@ -190,6 +395,8 @@ input.gsc-input {
   font-size: 1em;
   color: #555;
   margin-bottom: 6px;
+  text-align: center;
+  margin: 10px;
 }
 
 .history-list {
@@ -202,12 +409,12 @@ input.gsc-input {
 }
 
 .history-item {
-  width:100% !important;
-  overflow-x:auto;
+  width: 100% !important;
+  overflow-x: hidden;
   /*max-height: 120px ;*/
-  font-size:small !important;
+  font-size: small !important;
   /*white-space:nowrap;*/
-  overflow-y:hidden;
+  overflow-y: hidden;
   display: inline-block;
   padding: 4px 10px;
   background: #f1f3f4;
@@ -225,9 +432,9 @@ input.gsc-input {
   -ms-user-select: none;
 }
 
-h1 {
-  font-size: 2em;
-  margin: 5px;
+.title-container>h2 {
+  font-size: xx-small;
+  margin-bottom: -16px;
   color: #333;
 }
 
@@ -331,6 +538,14 @@ div.none {
   filter: brightness(1.2);
 }
 
+
+.gradient-button:hover .delete-history-btn {
+  z-index: 114154;
+  transform: scale(2);
+  filter: brightness(1.2);
+  background: #ea3e4f;
+}
+
 @keyframes gradientFlow {
   0% {
     background-position: 0% 50%;
@@ -365,12 +580,6 @@ div.none {
   transition: transform 0.3s ease, filter 0.3s ease;
 }
 
-.gradient-button:hover .delete-history-btn {
-  z-index: 114154;
-  transform: scale(2);
-  filter: brightness(1.2);
-  background: #ea3e4f;
-}
 
 .alert-box {
   max-width: 420px;
@@ -398,13 +607,16 @@ div.none {
 }
 
 .board-area {
+  z-index: 1;
+  align-items: center;
   width: 100%;
-  margin: 2rem auto;
+  margin: 1rem auto;
   border-radius: 1rem;
 }
 
 .board-title {
-  text-align: left;
+  padding: 10px 0 0 0;
+  /*text-align: left;*/
   margin-bottom: clamp(0.75rem, 2vw, 1rem);
 }
 
@@ -431,9 +643,10 @@ div.none {
 
 @media (max-width: 768px) {
   .board-area {
-    width: 95%;
+    /*width: 95%;*/
+    width: 90vw;
     margin: 1.5rem auto;
-    padding: clamp(0.75rem, 2.5vw, 1rem);
+    /*padding: clamp(0.75rem, 2.5vw, 1rem);*/
   }
 
   .board-title h2 {
@@ -447,9 +660,10 @@ div.none {
 
 @media (max-width: 480px) {
   .board-area {
-    width: 98%;
+    /*width: 98%;*/
+    width: 90vw;
     margin: 1rem auto;
-    padding: clamp(0.5rem, 2vw, 0.75rem);
+    /*padding: clamp(0.5rem, 2vw, 0.75rem);*/
     border-radius: 0.75rem;
   }
 
@@ -462,4 +676,367 @@ div.none {
     font-size: clamp(0.8rem, 2vw, 0.9rem);
     line-height: 1.4;
   }
+}
+
+
+/* 遮罩层 */
+.confirm-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9998;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .2s, visibility .2s;
+}
+
+.confirm-mask.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* 弹窗本体 */
+.confirm-dialog {
+  background: #fff;
+  border-radius: 8px;
+  width: 320px;
+  max-width: 90vw;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, .2);
+  animation: pop .2s ease-out;
+}
+
+@keyframes pop {
+  from {
+    transform: scale(.8);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.confirm-header {
+  padding: 16px 20px 8px;
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.confirm-body {
+  padding: 0 20px 16px;
+  color: #555;
+}
+
+.confirm-footer {
+  padding: 0 20px 16px;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.confirm-footer button {
+  min-width: 72px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.confirm-footer .cancel {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.confirm-footer .ok {
+  background: #007bff;
+  color: #fff;
+}
+
+.confirm-footer .ok:hover {
+  background: #0056b3;
+}
+
+.confirm-footer .cancel:hover {
+  background: #e0e0e0;
+}
+
+
+/*可展开侧边栏按钮*/
+
+/* 固定宽度 107px */
+.collapsible {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  /* 关键 */
+  /*width: 107px;*/
+  margin: 4px auto;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* 标题栏 */
+.collapsible-header {
+  background-color: #f7f7f7;
+  padding: 8px 6px;
+  font-size: 13px;
+  font-weight: bold;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+}
+
+.collapsible-header::after {
+  content: "▼";
+  font-size: 10px;
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: transform 0.2s;
+}
+
+.collapsible.active .collapsible-header::after {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+/* 内容区 */
+.collapsible-content {
+  padding: 0 6px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.3s ease;
+  background-color: #fff;
+}
+
+.collapsible.active .collapsible-content {
+  padding: 6px 6px;
+  max-height: 200px;
+}
+
+/* 竖排按钮组 */
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.option-btn {
+  width: 100%;
+  padding: 6px 4px;
+  border: 1px solid #007bff;
+  border-radius: 4px;
+  background-color: #fff;
+  color: #007bff;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.option-btn:hover {
+  background-color: #e7f3ff;
+}
+
+.option-btn.active {
+  background-color: #007bff;
+  color: #fff;
+  font-weight: bold;
+}
+
+
+/* 标题 */
+
+
+.title-container {
+  position: sticky;
+  z-index: 2;
+  top: 0px;
+  text-align: center;
+  padding: 0rem 0rem;
+  border-radius: 0px;
+  background: rgba(255, 255, 255, 1);
+  backdrop-filter: blur(12px);
+  /*box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);*/
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  /*animation: fadeIn 1.2s ease-out;*/
+}
+
+.rec-dot {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background: #ff2d55;
+  border-radius: 50%;
+  margin-right: 12px;
+  animation: pulse 1.5s infinite;
+  box-shadow: 0 0 15px rgba(255, 45, 85, 0.8);
+}
+
+.main-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  letter-spacing: 1px;
+}
+
+.subtitle {
+  font-size: 0.95rem;
+  color: #ccc;
+  margin-top: 0.8rem;
+  opacity: 1;
+  /* animation: slideUp 1s 0.6s forwards;*/
+}
+
+.highlight {
+  background: linear-gradient(90deg, #ff2d55, #ff6b6b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+
+.bottom-neg-19 {
+  bottom: -19px;
+}
+
+.margin-bottom-neg-5 {
+  margin-bottom: -5px !important;
+}
+
+
+@media (max-width: 480px) {
+  .main-title {
+    font-size: 2.2rem;
+  }
+
+  .title-container {
+    padding: 0rem 0rem;
+  }
+}
+
+/* 测试 */
+/* 1. 设置父容器为 Flexbox 布局，并限制其高度 */
+.container-flex {
+  display: grid;
+  grid-template-rows: 1fr;
+  flex-direction: column;
+  /* 垂直排列子元素 */
+  /* 假设容器高度固定，例如占据视口 80% 的高度 */
+  height: 100vh;
+  width: 100vh;
+  /* border: 2px solid black;*/
+  /*margin: 20px; */
+  /* 方便观察效果 */
+}
+
+/* 2. 固定元素 A - 保持默认大小 */
+.fixed-item {
+  /* flex-shrink: 0; /* 可选，确保它不会被压缩 */
+  padding: 10px;
+  background-color: #2ecc71;
+  color: white;
+}
+
+/* 3. 可滚动内容区 - 占据剩余空间并允许滚动 */
+.scroll-content {
+  flex-grow: 1;
+  /* 关键：占据父容器的剩余空间 */
+  overflow-y: auto;
+  /* 关键：允许垂直滚动 */
+  padding: 10px;
+  /*background-color: #ecf0f1;*/
+}
+
+/* 仅为示例内容添加样式 */
+#b,
+#c {
+  /* 确保内容总高度超出 .scroll-content 的高度 */
+  height: 400px;
+  border: 1px solid #bdc3c7;
+  margin-bottom: 10px;
+  padding: 10px;
+}
+
+
+/*关闭按钮*/
+
+.close-button {
+  /* 基础设置 */
+  position: relative;
+  width: 30px;
+  /* 按钮的宽度 */
+  height: 30px;
+  /* 按钮的高度 */
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+
+  /* 辅助视觉 */
+  transition: all 0.3s ease;
+}
+
+/* 悬停效果：增加视觉反馈 */
+.close-button:hover {
+  transform: rotate(90deg);
+  /* 悬停时旋转，增加趣味性 */
+  opacity: 0.8;
+}
+
+/* 绘制“X”的第一条斜线 */
+.close-button::before,
+.close-button::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  /* 斜线长度 */
+  height: 2px;
+  /* 斜线厚度 */
+  background-color: #333;
+  /* 斜线颜色 (深灰色) */
+  transform-origin: center;
+  transition: background-color 0.3s ease;
+}
+
+/* 第一条线：向右上方倾斜 45 度 */
+.close-button::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+/* 第二条线：向右下方倾斜 -45 度 */
+.close-button::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+/* 悬停效果：改变斜线颜色 */
+.close-button:hover::before,
+.close-button:hover::after {
+  background-color: #FF0000;
+  /* 悬停时变为红色 */
+}
+
+button.close-button {
+  background: #00000000;
+}
+
+.gsc-results-close-btn {
+  right: 50% !important;
 }

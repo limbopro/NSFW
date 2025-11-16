@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>今晚看什么？| 番号搜索, 番号随机推荐, 高清AV、免费AV、JAV线上看、免费AV、手机AV</title>
+  <title>番号推荐 - 破万人收藏！JAV经典番号随机推荐, 番号搜索, 高清JAV、免费AV、JAV线上看、免费AV、手机AV</title>
   <link rel="icon" type="image/ico" href="https://limbopro.com/favicon.ico">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="番号随机推荐|番号搜索|高清AV、免费AV、JAV线上看、免费AV、手机AV">
@@ -12,86 +12,200 @@
 
 <body>
 
-  <div class="container-search">
-
-
-
-    <!-- 翻译小部件容器 -->
-    <div id="google_translate_element">
+  <!--确认操作-->
+  <div id="confirmMask" class="confirm-mask">
+    <div class="confirm-dialog">
+      <div class="confirm-header">确认操作</div>
+      <div class="confirm-body">确定要清除所有搜索记录吗？</div>
+      <div class="confirm-footer">
+        <button class="cancel">取消</button>
+        <button class="ok">确认</button>
+      </div>
     </div>
-
-
-    <div class="header skiptranslate">
-      <a href="https://limbopro.com/tools/jwksm/" target="_self"><img src="https://limbopro.com/SearchX.png" alt="Logo"
-          width="100px"></a>
-      <h1 class="notranslate skiptranslate">今晚看什么？</h1>
-    </div>
-
-    <div id="display" class="display-box">
-      <br>
-      <p class='default'>点击下方按钮</p><span class='default'>随机抽取🎲</span>
-      <p class='default'>一个番号</p><br>
-      <p class='default'>或者</p><span class='default'>输入番号/关键字</span>
-      <p class='default'>进行搜索</p>
-    </div>
-
-    <div class="mb-4 notranslate">
-      <label for="category" class="block text-sm font-medium text-gray-700"><span
-          class="notranslate">选择分类</span></label>
-      <select class="notranslate" id="category" class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
-      </select>
-      <p style="display: inline;"><span class="notranslate">已抽</span>&nbsp<span id="countHas"></span>/<span
-          id="count"></span>=<span class="notranslate" id="percent">0%</span>;</p>
-    </div>
-
-    <button class="notranslate" id="randomBtn">随机抽取🎲</button>
-    <div class="search-area notranslate">
-      <input type="text" id="searchInput" placeholder="输入番号...">
-      <a id="searchBtn" href="#" target="_blank" class="search-btn">搜索</a>
-    </div>
-
-    <div class="search-area-google">
-      <!-- Google 搜索引擎的输入框 -->
-      <gcse:searchbox></gcse:searchbox>
-
-    </div>
-
-    <!-- Google 搜索引擎结果框 -->
-    <div class="search-results-google notranslate">
-      <gcse:searchresults></gcse:searchresults>
-    </div>
-
   </div>
 
-  <div class="container-result notranslate skiptranslate">
-
-    <div id="history" class="history-area">
-      <div class="history-title"><span>记录：</span>（点击可自动填入搜索框，长按加入收藏）</div>
-      <div id="historyList" class="history-list"></div>
-      <button id="clearHistoryBtn" class="clear-history-btn">清除记录</button>
-    </div>
-
-    <div class="history-area">
-      <div class="history-title"><span>收藏：</span>（点击可自动填入搜索框）</div>
-      <div class="history-list" id="favoritesList"></div>
-      <button id="clearFavoritesBtn" class="clear-history-btn">清除收藏</button>
-    </div>
-
-    <!--公告栏-->
-    <div id="board" class="board-area">
-      <div class="board-title">
-        <h2>公告栏</h2>
+  <!-- 翻译小部件容器 -->
+  <div id="google_translate_element">
+    <div class="collapsible">
+      <div class="collapsible-header">查看</div>
+      <div class="collapsible-content">
+        <div class="button-group">
+          <button id="up2Top" class="option-btn" title="返回顶部🆙"> 返回顶部🆙</button>
+          <button id="result" class="option-btn" title="🔴REC记录">🔴REC</button>
+          <button id="fav" class="option-btn" title="💖💗🥰💞收藏">💖💗🥰💞</button>
+          <button id="laji" class="option-btn" title="🚮💩已拉黑">🚮💩</button>
+          <button id="lianxi" class="option-btn" title="📲联系我们">💬ℹ️</button>
+        </div>
       </div>
-      <p class="notranslate">如番号内容与分类不匹配，请通过页面底部的<span>📧联系我们</span>提供的联系方式与我们反馈；</p>
+    </div>
+  </div>
+
+  <div class="wrap">
+
+    <!-- 以下是弹窗模板（隐藏在页面中） -->
+
+    <div class="container-search">
+
+      <div class="header skiptranslate">
+        <a href="https://limbopro.com/tools/jwksm/" target="_self"><img src="https://limbopro.com/SearchX.png"
+            alt="Logo" width="100px"></a>
+        <h1 class="notranslate skiptranslate">今晚看什么？</h1>
+      </div>
+
+      <div id="display" class="display-box">
+        <br>
+        <p class='default'>👇点击下方</p><span class='default'>随机抽取🎲按钮</span>
+        <p class='default'>抽取一个番号</p><br>
+        <p class='default'>或者</p><span class='default'>输入番号/关键字</span>
+        <p class='default'>进行搜索。</p><br><br>
+        <p class="default">📋点击或滑动<span>本文本框</span>会<span>短暂隐藏右上角菜单</span>，点击其他地方会立刻显示菜单。。</p>
+      </div>
+
+      <div class="mb-4 notranslate">
+        <label for="category" class="block text-sm font-medium text-gray-700"><span
+            class="notranslate">选择分类</span></label>
+        <select class="notranslate" id="category" class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
+        </select>
+
+
+        <p style="display: inline;"><span class="notranslate">🔴REC记录</span>&nbsp<span id="countHas"></span>/<span
+            id="count"></span>=<span class="notranslate" id="percent">0%</span>;</p>
+
+        <p style="display: inline;"><span class="notranslate">💖💗🥰💞</span>&nbsp<span id="favcountHas"></span>/<span
+            id="selectArrcountFav"></span>;</p>
+
+
+        <p style="display: inline;"><span class="notranslate">🚮💩</span>&nbsp<span id="lajicountHas"></span>/<span
+            id="selectArrcount"></span>;</p>
+      </div>
+
+      <button class="notranslate" id="randomBtn">随机抽取🎲</button>
+      <div class="search-area notranslate">
+        <input type="text" id="searchInput" placeholder="输入番号...">
+        <a id="searchBtn" href="#" target="_blank" class="search-btn">搜索</a>
+      </div>
+
+      <div class="search-area-google">
+        <!-- Google 搜索引擎的输入框 -->
+        <gcse:searchbox></gcse:searchbox>
+
+      </div>
+
+      <!-- Google 搜索引擎结果框 -->
+      <div class="search-results-google notranslate">
+        <gcse:searchresults></gcse:searchresults>
+      </div>
+
     </div>
 
-    <div class="footer">
 
-      <p style="font-size: xx-small; margin-bottom:25px;">
-        *番号<a href="https://limbopro.com/tools/jwksm/ori.json" target="_blank">数据库</a> (JSON)
-        最新更新至2025年，共计<span id="icount">1000+</span>部，精品中的精品；
+    <!--结果栏-->
+
+    <div class="history-title container-result">
+      <div class="wtf">
+
+        <div class="title-container">
+          <h2>
+            <span class="rec-dot"></span>
+            <span class="main-title">🔴<span class="highlight">REC</span></span>
+          </h2>
+          <p class="subtitle">（随机抽取🎲及已搜索的记录；点击可自动填入搜索框，长按加入收藏）</p>
+        </div>
+
+        <div id="history" class="history-area">
+          <div id="historyList" class="history-list"></div>
+        </div>
+
+
+        <div class="title-container bottom-neg-19">
+          <h2 class="margin-bottom-neg-5">
+            <span class="main-title"><button id="clearHistoryBtn" class="clear-history-btn">清除记录</button></span><br>
+          </h2>
+          <p class="subtitle">（点击清除 🔴REC 记录）</p>
+        </div>
+
+
+      </div>
+    </div>
+
+
+    <!--收藏栏-->
+    <div class="history-title container-fav">
+      <div class="wtf">
+
+        <div class="title-container">
+          <h2>
+            <span class="rec-dot"></span>
+            <span class="main-title">💖💗🥰💞<span class="highlight"></span></span>
+          </h2>
+          <p class="subtitle">（我的收藏，点击可自动填入搜索框）</p>
+        </div>
+
+        <div class="history-area">
+          <div class="history-list" id="favoritesList"></div>
+        </div>
+
+        <!--容器底部脚注-->
+        <div class="title-container bottom-neg-19">
+          <h2 class="margin-bottom-neg-5">
+            <span class="main-title"><button id="clearFavoritesBtn" class="clear-history-btn">清除收藏</button></span><br>
+          </h2>
+          <p class="subtitle">（点击清除 💖💗🥰💞 收藏记录）</p>
+        </div>
+
+      </div>
+    </div>
+
+    <!--垃圾栏-->
+    <div class="history-title container-laji">
+      <div class="wtf">
+
+        <div class="title-container">
+          <h2>
+            <span class="rec-dot"></span>
+            <span class="main-title">🚮💩<span class="highlight"></span></span>
+          </h2>
+          <p class="subtitle">已拉黑的随机抽取🎲及已搜索记录，不会再被系统随机抽取抽中；删除或清空可重回系统...</p>
+        </div>
+
+        <div class="history-area">
+          <div class="history-list" id="lajiList"></div>
+        </div>
+
+        <!--容器底部脚注-->
+        <div class="title-container bottom-neg-19">
+          <h2 class="margin-bottom-neg-5">
+            <span class="main-title"><button id="clearLajiBtn" class="clear-history-btn">清空</button></span><br>
+          </h2>
+          <p class="subtitle">（点击清空 🚮💩）</p>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!--footer-->
+    <div style="align-items: center;" class="container-footer notranslate foott ">
+
+
+      <div class="wtf">
+        <div class="title-container">
+          <h2>
+            <span class="rec-dot"></span>
+            <span class="main-title">💬ℹ️<span class="highlight"></span></span>
+          </h2>
+          <p class="subtitle">（Anytime,Anywhere.）</p>
+        </div>
+      </div>
+
+      <p style="font-size: xx-small;margin-bottom:25px;">
+        <a href="https://limbopro.com/tools/jwksm/index.html#gsc.tab=0">今晚看什么？</a>*番号<a
+          href="https://limbopro.com/tools/jwksm/ori.json" target="_blank">数据库</a> (JSON)
+        最新更新至<span id="memetime">2025年</span>，共计<span id="icount">1000+</span>部<span
+          id="yesterday"></span>；收藏人数破万，精品中的精品；数据截取自网络，经由 Grok 等 <a href="https://limbopro.com/tag/AI/"
+          target="_blank">AI</a> 排序/翻译/整理；如果你有看了又看的经典番号？欢迎<a href="https://limbopro.com/feedback/"
+          target="_blank">点此</a>进行推荐，亦可为我们提供反馈/建议/意见。🙏🏻🤍🫶🏼✨️；
       </p>
-
 
       <div class="nav-bar">
         <div class="nav-item"><a target="_blank" href="https://limbopro.com/">🕸️博客主页</a> | </div>
@@ -109,19 +223,30 @@
       </div>
 
       <p class="nav-item" style="font-size: xx-small; margin-bottom:25px;">© 2025 <a
-          href="https://limbopro.com/">毒奶博客</a> (Limbopro) All
+          href="https://limbopro.com/">毒奶博客</a>
+        (Limbopro) All
         rights reserved.
       </p>
+
+      <script async src="https://cse.google.com/cse.js?cx=77ba49c819b1d40d7">
+      </script>
+      <script src="script.js"></script>
+      <script src="https://limbopro.com/Adguard/Adblock4limbo.function.js"></script>
+      <script src="https://limbopro.com/tools/jwksm/thatJS.js"></script>
+
+
+
     </div>
 
+
+    <!--
+  <div class="container-output">
+    <div translate="yes" class="mar output-box"></div>
   </div>
+-->
 
-  <script async src="https://cse.google.com/cse.js?cx=77ba49c819b1d40d7">
-  </script>
-  <script src="script.js"></script>
-  <script src="https://limbopro.com/Adguard/Adblock4limbo.function.js"></script>
-  <script src="https://limbopro.com/tools/jwksm/thatJS.js"></script>
 
+  </div>
 
   <script>
     window.onload = function () {
@@ -151,23 +276,11 @@
     // 执行检查
     // isScriptLoaded();
 
-    // 等所有元素加载完毕后再执行
-
-    window.addEventListener('load',
-
-      function () {
-        setTimeout(() => {
-          document.getElementById('icount').innerText = uniqueById.length;
-        }, 3000);
-      }
-    );
-
-
   </script>
 
 
-
-
+  <script>
+  </script>
 
 
   <!-- Google 翻译插件 -->
@@ -175,7 +288,7 @@
     function googleTranslateElementInit() {
       new google.translate.TranslateElement({
         pageLanguage: '',              // 原始语言：日文（内容主体）
-        includedLanguages: 'zh-CN,en',           // 可选翻译语言：简体中文
+        includedLanguages: 'zh-CN,zh-TW,en',           // 可选翻译语言：简体中文
         layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
         autoDisplay: false
       }, 'google_translate_element');
@@ -187,38 +300,134 @@
   <style>
     /* 翻译控件 */
     #google_translate_element {
+      z-index: 2;
       position: fixed;
       top: 40px;
       right: 10px;
-      z-index: 9999;
       background: #fff;
       padding: 5px;
       border-radius: 4px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     }
-
-    /*
-    .goog-te-combo {
-      padding: 6px 10px;
-      font-size: 14px;
-    }
-    */
-
-    /* 隐藏 Google 横幅 */
-    /*
-    .goog-te-banner-frame.skiptranslate {
-      display: none !important;
-    }
-      */
-
-    /*
-    body {
-      top: 0 !important;
-    }
-      */
   </style>
 
 
+
+
+  <!--监听 displaybox 点击及滑动事件 如有 暂时隐藏右上角菜单-->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const trigger = document.getElementById('display');
+      const translateEl = document.getElementById('google_translate_element');
+      let hideTimeout = null;
+      let isHidden = false;
+      let lastContent = trigger?.textContent.trim() || '';
+
+      if (!trigger || !translateEl) {
+        console.warn('未找到 #display 或 #google_translate_element');
+        return;
+      }
+
+      // 统一隐藏函数
+      const hideTranslate = () => {
+        if (isHidden) return;
+        translateEl.classList.add('translate-hidden');
+        isHidden = true;
+        if (hideTimeout) clearTimeout(hideTimeout);
+        hideTimeout = setTimeout(showTranslate, 3000);
+      };
+
+      // 立即显示函数
+      const showTranslate = () => {
+        if (!isHidden) return;
+        translateEl.classList.remove('translate-hidden');
+        isHidden = false;
+        if (hideTimeout) clearTimeout(hideTimeout);
+      };
+
+      // 1. 点击 #display → 隐藏
+      trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        hideTranslate();
+      });
+
+
+      // 4. 在 #display 内滑动 → 隐藏
+      let startX, startY, startTime;
+      const handleStart = (e) => {
+        if (e.target.closest('select')) return;
+        const touch = e.type.includes('touch') ? e.touches[0] : e;
+        startX = touch.clientX;
+        startY = touch.clientY;
+        startTime = Date.now();
+
+        const moveHandler = (moveEvent) => {
+          const touchMove = moveEvent.type.includes('touch') ? moveEvent.touches[0] : moveEvent;
+          const deltaX = Math.abs(touchMove.clientX - startX);
+          const deltaY = Math.abs(touchMove.clientY - startY);
+          if ((deltaX > 10 || deltaY > 10) && (Date.now() - startTime < 500)) {
+            hideTranslate();
+            document.removeEventListener('mousemove', moveHandler);
+            document.removeEventListener('touchmove', moveHandler);
+          }
+        };
+
+        document.addEventListener('mousemove', moveHandler);
+        document.addEventListener('touchmove', moveHandler, { passive: false });
+      };
+      trigger.addEventListener('mousedown', handleStart);
+      trigger.addEventListener('touchstart', handleStart, { passive: false });
+
+      // 5. 点击或滑动「非 #display」区域 → 立即显示
+      let globalStartX, globalStartY, globalStartTime;
+
+      const globalStart = (e) => {
+        // 排除 #display 和翻译框本身
+        if (trigger.contains(e.target) || translateEl.contains(e.target)) return;
+
+        const touch = e.type.includes('touch') ? e.touches[0] : e;
+        globalStartX = touch.clientX;
+        globalStartY = touch.clientY;
+        globalStartTime = Date.now();
+
+        const globalMove = (moveEvent) => {
+          const touchMove = moveEvent.type.includes('touch') ? moveEvent.touches[0] : moveEvent;
+          const deltaX = Math.abs(touchMove.clientX - globalStartX);
+          const deltaY = Math.abs(touchMove.clientY - globalStartY);
+
+          // 滑动 > 10px 或 点击
+          if (deltaX > 10 || deltaY > 10 || (Date.now() - globalStartTime > 300)) {
+            showTranslate();
+            document.removeEventListener('mousemove', globalMove);
+            document.removeEventListener('touchmove', globalMove);
+          }
+        };
+
+        document.addEventListener('mousemove', globalMove);
+        document.addEventListener('touchmove', globalMove, { passive: false });
+      };
+
+      document.addEventListener('mousedown', globalStart);
+      document.addEventListener('touchstart', globalStart, { passive: false });
+
+      // 额外：点击页面任意处（非 display）也立即显示
+      document.addEventListener('click', (e) => {
+        if (!trigger.contains(e.target) && !translateEl.contains(e.target)) {
+          showTranslate();
+        }
+      });
+
+    });
+  </script>
+
+  <!-- 隐藏样式 -->
+  <style>
+    .translate-hidden {
+      opacity: 0 !important;
+      pointer-events: none !important;
+      transition: opacity 0.3s ease !important;
+    }
+  </style>
 
 
 </body>

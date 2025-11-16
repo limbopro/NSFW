@@ -12,6 +12,7 @@ async function fetchCodes() {
 
 
   async function loadJsonFiles(files, basePath = "./") { // basePath 参数，默认为当前目录
+    console.log('loadJsonFiles: ' + basePath)
     // 自动去重 + 过滤空值
     const uniqueFiles = [...new Set(files.filter(f => f && typeof f === "string"))];
     const result = {};
@@ -60,8 +61,10 @@ async function fetchCodes() {
     "roumangaibian.json", "renqi.json", "office.json", "mom1.json",
     "mom.json", "koubao.json", "juru.json", "jiazhengfuwu.json",
     "fitness.json", "father.json", "duop.json", "chugui.json",
-    "3p.json"
+    "3p.json",
+    "yearsViewed_2025.json"
   ];
+
   window.dataMax = await loadJsonFiles(otherfiles, "./others/");
 
   // 3. 2025年最想要
@@ -72,23 +75,45 @@ async function fetchCodes() {
 
   window.dataMostwanted = await loadJsonFiles(mostwanted, "./mostwanted/");
 
+  // 4. 年度已看
+
+  const yearsViewed = [
+    "yearsViewed_2025.json",
+  ];
+
+  window.yearsViewedW = await loadJsonFiles(yearsViewed, "./years/");
+
+
+  // 5. 今日热们🔥
+
+  const dailyBest = [
+    "daily.json", "old.json", 'monthly.json',
+  ];
+
+  window.dailyBestW = await loadJsonFiles(dailyBest, "./daily/");
 
   // 组合数据到 dataList 对象
 
-  /*
-  dataList['2025年评价最佳[10月]'] = [
-    ...dataBestrated['bestrated_2025_11'],
-    ...dataBestrated['bestrated_translated']]
-*/
 
-  dataList['2025年最想要[已翻译]'] = [
-    ...dataMax['mostwanted_unique_translated'],
-    ...dataMax['mostwanted_duplicates_tranlated'],
+  // 6. 时间戳
+
+  const timeJson = [
+    "current_time.json",
   ];
 
-  dataList['2025年最想要[未翻译]'] = [
+  window.currenttimeW = await loadJsonFiles(timeJson, "./time/");
+
+  // 组合数据到 dataList 对象
+
+
+  dataList['2025年新片已阅推荐✨🌅🧡'] = yearsViewedW['yearsViewed_2025']
+
+
+  /*
+  dataList['2025年最想要[10月&未翻译🈂️]'] = [
     ...dataMostwanted['most_wanted_201511']
   ];
+  */
 
   dataList['2024年评价最佳'] = [
     ...dataBestrated['2024best'],
@@ -111,6 +136,8 @@ async function fetchCodes() {
     ...dataBestrated['2020_best_netflav']
   ]; // 新增 2020 年评价最佳分类
 
+  dataList['本月热门🔥🔞'] = dailyBestW['monthly']
+  //dataList['昨日热门🔥🔞'] = dailyBestW['old']
   dataList['夫妻交换🎎'] = dataMax['fuqijiaohuan'];
   dataList['办公室🤤'] = dataMax['office'];
   dataList['办公室🤤'] = dataMax['office'];
@@ -133,6 +160,12 @@ async function fetchCodes() {
   dataList['制服诱惑👩🏻‍💼'] = dataMax['zhifuyouhuo'];
   dataList['肉漫改编✍️'] = dataMax['roumangaibian'];
 
+  // dataList['综合分类破万收藏🧸ྀི'] = historyBest([dataMax['chugui'], dataMax['juru'], dataMax['renqi'], dataMax['yongzhuang'], dataMax['duop'], dataMax['roumangaibian'], dataMax['office'], dataMax['zhifuyouhuo'], dataMostwanted['most_wanted_201511']])
+  // 多个分类中都出现的番号，然后汇集到一起
+  const onlyDuplicates = findDuplicates(dataMax['chugui'], dataMax['juru'], dataMax['renqi'], dataMax['yongzhuang'], dataMax['duop'], dataMax['roumangaibian'], dataMax['office'], dataMax['zhifuyouhuo'], dataMostwanted['most_wanted_201511']);
+  // 对汇集到一起的番号再进行一次去重
+  dataList['综合分类破万收藏🧸ྀི'] = deduplicateByNumberMaxFav(onlyDuplicates, 'no')
+
   dataList['综合●'] = [
     ...dataMax['friends'],
     ...dataMax['father'],
@@ -140,10 +173,29 @@ async function fetchCodes() {
     ...dataMax['brother']
   ];
 
-  dataList["全部分类"] = Object.values(dataList)
+
+
+  const iMax = Object.values(dataList) // 综合body
     .filter(arr => Array.isArray(arr))
-    .flat();
+    .flat().filter((item, index, self) =>
+      index === self.findIndex(t => t.番号 === item.番号));
+
+  dataList["全部分类"] = [...iMax,
+  ...dailyBestW['old']
+  ]
+
+
   window.dataList = dataList;
+
+  window.superMax = [...dataList["全部分类"]].filter((item, index, self) =>
+    index === self.findIndex(t => t.番号 === item.番号)
+  );
+
+  var uniqueByqbfl = dataList['全部分类'].filter((item, index, self) =>
+    index === self.findIndex(t => t.番号 === item.番号)
+  );
+
+  window.uniqueByqbflCR = uniqueByqbfl;
 
   setTimeout(() => {
     categoryChange();
@@ -152,8 +204,6 @@ async function fetchCodes() {
 
 // 初始化数据加载
 fetchCodes();
-
-
 
 // 分类选择变化时的处理
 function categoryChange() {
@@ -174,7 +224,7 @@ function categoryChange() {
   });
 
   historyItem_percent();
-  historyItem_paddingtoprebuild();
+
   addGlobalListener();
 }
 
@@ -185,13 +235,16 @@ const randomBtn = document.getElementById('randomBtn');
 const searchBtn = document.getElementById('searchBtn');
 const searchInput = document.getElementById('searchInput');
 const historyList = document.getElementById('historyList');
+const lajiList = document.getElementById('lajiList');
 const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+const clearLajiBtn = document.getElementById('clearLajiBtn');
 const favoritesList = document.getElementById('favoritesList');
 const clearFavoritesBtn = document.getElementById('clearFavoritesBtn');
 
 let historyArr = [];
 let historyArrTitle = [];
 let favoritesArr = [];
+let lajiArr = [];
 
 function loadHistory() {
 
@@ -213,7 +266,6 @@ function loadHistory() {
     historyArrTitle = [];
   }
 
-
 }
 
 function loadFavorites() {
@@ -227,8 +279,22 @@ function loadFavorites() {
   }
 }
 
+function loadLaji() {
+  try {
+    const saved = localStorage.getItem('垃圾_番号');
+    if (saved) {
+      lajiArr = JSON.parse(saved);
+    }
+  } catch (e) {
+    lajiArr = [];
+  }
+}
+
 loadHistory();
 loadFavorites();
+loadLaji();
+
+// 调用
 
 function saveHistory() {
   localStorage.setItem('抽取记录_番号', JSON.stringify(historyArr));
@@ -239,48 +305,73 @@ function saveFavorites() {
   localStorage.setItem('收藏_番号', JSON.stringify(favoritesArr));
 }
 
+
+function saveLaji() {
+  localStorage.setItem('垃圾_番号', JSON.stringify(lajiArr));
+}
+
+
 function showData(data) {
 
+  const el = document.getElementById('google_translate_element');
+  if (el) {
+    if (el.offsetHeight > 200) {
+      document.querySelector(".collapsible-header").click()
+    }
+  }
+
   const idPrefix = data.番号;
+
   display.innerHTML = `
     <span class="notranslate" translate="no">番号：</span><p class="notranslate" translate="no">${data.番号}</p><br>
-    <span class="notranslate" id='icode' translate="no">标题：</span><p class='default'>${data.名称}'</p><br>
+    <span class="notranslate" id='title' translate="no">标题：</span><p class='default'>${data.名称}'</p><br>
     <span class="notranslate" translate="no">演员：</span><p id='iactor'class="notranslate" translate="no">${data.演员}</p><br>
     <span class="notranslate" translate="no">收藏人数：</span><p id='ifav'class="notranslate" translate="no">${data.收藏人数}</p><br>
-    <span class="notranslate" translate="no">分类：</span><p id='icategory' class="notranslate" translate="no">${getCategoryByNumber(data.番号)}</p><br>
+    <span id='categoryDisplay' class="notranslate" translate="no">分类：</span><p id='icategory' class="notranslate" translate="no">${getCategoryByNumber(data.番号)}</p><br>
     <div class='none'><p id='${idPrefix}'>标题：${data.名称}'</p></div>
   `;
 
   setTimeout(() => {
 
-    toggleSearchState('false');
+    // 使用
+    if (isMobile() && getCookie('googtrans') !== '') { // 移动端且用户开启了翻译
+      flashScroll('#display')
 
-    // 1. 选取目标元素
-    const element = document.getElementById('icount'); // 替换为你想选取的元素 ID
+      setTimeout(() => {
+        function getTitle() {
+          // 1. 选取目标元素
+          const element = document.getElementById('title'); // 替换为你想选取的元素 ID
+          if (element) {
+            // 2. 调用函数模拟选取
+            selectElementText(element);
+            element.click();
+          } else {
+            console.error('未找到 ID 为 icode 的元素。');
+          }
 
-    if (element) {
-      // 2. 调用函数模拟选取
-      selectElementText(element);
-      element.click();
+          clearSelection();
+          if (window.getSelection) {
+            // 1. 获取当前的 Selection 对象（即用户高亮的区域）
+            const selection = window.getSelection();
+
+            // 2. 移除 Selection 对象中包含的所有 Range
+            // 这将有效地清除所有高亮文本。
+            selection.removeAllRanges();
+            //// console.log('全局文本选取已取消。');
+          }
+        }
+      }, 1500)
+
     } else {
-      console.error('未找到 ID 为 icode 的元素。');
+      console.log('是桌面端');
     }
 
-    setTimeout(() => {
-      if (window.getSelection) {
-        // 1. 获取当前的 Selection 对象（即用户高亮的区域）
-        const selection = window.getSelection();
-
-        // 2. 移除 Selection 对象中包含的所有 Range
-        // 这将有效地清除所有高亮文本。
-        selection.removeAllRanges();
-        //// console.log('全局文本选取已取消。');
-      }
-    }, 1000);
+    toggleSearchState('false');
 
   }, 1000);
 
 }
+
 
 function getCategoryByNumber(number) {
   const matchingCategories = [];
@@ -293,15 +384,62 @@ function getCategoryByNumber(number) {
 }
 
 function getRandomItem(category) {
+
   const items = dataList[category];
   if (!items || items.length === 0) return null;
   const randomIndex = Math.floor(Math.random() * items.length);
+  console.log("randomIndex: " + randomIndex)
   return items[randomIndex];
 }
 
+
+
 randomBtn.onclick = function () {
-  const selectedCategory = categorySelect.value;
-  const randomData = getRandomItem(selectedCategory);
+
+  let selectedCategory = categorySelect.value;
+  let randomData = null;
+
+  // 初始调用一次，初始化 lajiArr
+  percentAB(dataList[selectedCategory], lajiArr);
+
+  let attempts = 0;
+  const maxAttempts = 100; // 防止极端情况死循环
+
+  while (true) {
+    // 关键：每次循环开始前，重新计算可用数量
+    const availableCount = percentAB(dataList[selectedCategory], lajiArr);
+
+    // 如果没有可用项了，退出
+    if (availableCount === 0) {
+      console.log("已无可选项目，结束随机选择");
+
+      confirmndExecute('', '已无可选项目，结束随机选择！', (() => {
+        console.log('wtf')
+      }));
+
+      break;
+    }
+
+    // 随机获取一个项
+    randomData = getRandomItem(selectedCategory);
+
+    // 检查是否已存在于 lajiArr
+    if (!lajiArr.includes(randomData.番号)) {
+      // 找到一个新的！可以退出
+      break;
+    }
+
+    // 已存在，继续下一次循环
+    attempts++;
+    if (attempts >= maxAttempts) {
+      console.warn("达到最大尝试次数，强制结束");
+      randomData = null;
+      break;
+    }
+  }
+
+
+
   showData(randomData);
   searchInput.value = randomData.番号;
 
@@ -310,6 +448,7 @@ randomBtn.onclick = function () {
   } else {
     console.log('cseScript is not loaded');
   }
+
 
   updateSearchHref();
 
@@ -334,26 +473,20 @@ randomBtn.onclick = function () {
       historyArrTitle.push(matchedItem);
     }
 
-
-    /*
-    for (let i = historyArrTitle.length - 1; i >= 0; i--) {
-      if (historyArrTitle[i].includes(num)) {
-        historyArrTitle.splice(i, 1); // 删除当前元素
-      }
-    }
-
-    historyArrTitle.push(randomData.番号 + " " + randomData.名称 + " " + randomData.演员)
-    */
-
     saveHistory();
     renderHistory();
+
   }
 
-  historyItem_paddingtoprebuild();
   historyItem_normal();
   codeHover = randomData.番号;
   historyItem_highlights();
   historyItem_percent();
+
+  console.log("flashScroll('.container-result',1000,'up')")
+  flashScroll('.container-result', 1000, 'up'); // 随机获取番号 滚动回顶部
+  historyItem_highlights('special');
+
 };
 
 searchInput.oninput = updateSearchHref;
@@ -366,7 +499,7 @@ function updateSearchHref() {
   const value = searchInput.value.trim();
   const url = value ? `https://limbopro.com/btsearch.html#gsc.tab=0&gsc.q=${encodeURIComponent(value)}` : "#";
   searchBtn.href = url;
-  console.log('url:' + url);
+  //// console.log('url:' + url);
 }
 
 searchBtn.onclick = function (e) {
@@ -378,21 +511,61 @@ searchBtn.onclick = function (e) {
 };
 
 
+function num2Title(num) {
+  var title = '';
+  historyArrTitle.forEach((item) => {
+    if (item.includes(num)) {
+      title = item;
+      // console.log(num + " " + item);
+    }
+  })
+  return title;
+}
 
 
 function renderHistory() {
   historyList.innerHTML = "";
 
-
-
   // 找出 historyArr 中没有被 historyArrTitle 任何一项“包含”的元素
+  // 然后从数据库 dataList 中找 如有则 push 到 historyArrTitle
+
+  // Start
+  // Part1
   const toAdd = historyArr.filter(itemA =>
     !historyArrTitle.some(itemB => itemB.includes(itemA))
   );
 
-  // 添加到 B 末尾
-  historyArrTitle.push(...toAdd);
+  toAdd
 
+
+  toAdd.forEach(function (item, index) {
+    console.log(superMax.find(d => d.番号 === item.toUpperCase()));
+    item = superMax.find(d => d.番号 === item.toUpperCase())
+    if (item) {
+      historyArrTitle.push(item.番号 + " " + item.名称 + " " + item.演员)
+      console.log('historyArrTitle 新增番号: ' + item.番号)
+      return item;
+    }
+  });
+
+
+  // Part2
+  const toAddNow = historyArr.filter(itemA =>
+    !historyArrTitle.some(itemB => itemB.includes(itemA))
+  );
+
+
+  toAddNow.forEach((item) => {
+    if (item) {
+      console.log(item)
+      historyArrTitle.push(item)
+      console.log('historyArrTitle 新增番号: ' + item.番号)
+    }
+  })
+
+  saveHistory()
+
+  // End
 
 
   historyArr.forEach((num, index) => {
@@ -400,8 +573,8 @@ function renderHistory() {
 
     historyArrTitle.forEach((item) => {
       if (item.includes(num)) {
-        title = item
-        console.log(num + " " + item)
+        title = item;
+        //// console.log(num + " " + item);
       }
     })
 
@@ -418,35 +591,55 @@ function renderHistory() {
       if (isScriptLoaded()) {
         document.querySelector('input.gsc-input').value = num;
       }
+
       historyItem_normal();
-      codeHover = num;
-      historyItem_highlights();
+
+
+      if (getCookie('googtrans') !== '') { // 如果用户开启翻译 codeHover = num
+        codeHover = num
+      } else {
+        codeHover = num2Title(num);
+      }
+
+      console.log('当前点击的是：\n\n' + codeHover)
+      historyItem_highlights('special');
       updateSearchHref();
-      const item = dataList["全部分类"].find(d => d.番号 === num.toUpperCase());
+
+      const item = superMax.find(d => d.番号 === num.toUpperCase());
+
       if (item) {
         showData(item);
       } else {
         display.innerHTML = "<div class='notranslate'><br>未在<span>数据库</span>找到该<span>番号/关键字</span>的详细信息！请在确保输入<span>番号/关键字</span>后<span>直接点击搜索按钮</span>进行搜索。</div>";
       }
-      historyItem_paddingtoprebuild();
+
     };
 
     let pressTimer;
     span.addEventListener('touchstart', function (e) {
       pressTimer = setTimeout(() => {
         e.preventDefault(); // 长按时阻止默认行为，防止文本选择
-        if (num !== codeHover) {
+        if (num2Title(num) !== codeHover && codeHover !== num) {
           // alert('请先点击选中此番号！');
           return;
         }
+
         if (favoritesArr.includes(num)) {
           alert('此番号已加入收藏！');
-        } else if (confirm(`是否将番号 ${num} 加入收藏？`)) {
-          favoritesArr.push(num);
-          saveFavorites();
-          renderFavorites();
-          historyItem_paddingtoprebuild();
         }
+        else {
+          confirmndExecute('', '是否将番号 ' + num + ' 加入收藏？', () => {
+            // flashScroll('.container-result') 
+            favoritesArr.push(num);
+            saveFavorites();
+            renderFavorites();
+            setTimeout(() => {
+              historyItem_percent(); // 更新记录
+            }, 1000)
+          })
+
+        }
+
       }, 1000);
     }, { passive: false });
 
@@ -460,18 +653,25 @@ function renderHistory() {
 
     span.onmousedown = function () {
       pressTimer = setTimeout(() => {
-        if (num !== codeHover) {
+        if (num2Title(num) !== codeHover && codeHover !== num) {
           alert('请先点击选中此番号！');
           return;
         }
         if (favoritesArr.includes(num)) {
           alert('此番号已加入收藏！');
-        } else if (confirm(`是否将番号 ${num} 加入收藏？`)) {
-          favoritesArr.push(num);
-          saveFavorites();
-          renderFavorites();
-          historyItem_paddingtoprebuild();
         }
+        else {
+          confirmndExecute('', '是否将番号 ' + num + ' 加入收藏？', () => {
+            // flashScroll('.container-result') 
+            favoritesArr.push(num);
+            saveFavorites();
+            renderFavorites();
+            setTimeout(() => {
+              historyItem_percent(); // 更新记录
+            }, 1000)
+          })
+        }
+
       }, 1000);
     };
 
@@ -489,8 +689,13 @@ function renderHistory() {
     deleteBtn.title = "删除此记录";
     deleteBtn.onclick = function (e) {
       e.stopPropagation();
-
       historyArr = historyArr.filter(item => item !== num);
+      lajiArr.push(num);
+      saveLaji();
+      renderLaji();
+      setTimeout(() => {
+        historyItem_percent(); // 更新记录
+      }, 1000)
 
       for (let i = historyArrTitle.length - 1; i >= 0; i--) {
         if (historyArrTitle[i].includes(num)) {
@@ -506,13 +711,13 @@ function renderHistory() {
         updateSearchHref();
         display.innerHTML = "<br><p class='notranslate'>点击下方按钮</p><span class='notranslate'>随机抽取</span><p class='notranslate'>一个番号</p><br><p class='notranslate'>或者</p><span class='notranslate'>输入番号/关键字</span><p class='notranslate'>进行搜索</p>";
       }
-      historyItem_paddingtoprebuild();
+
     };
     span.appendChild(deleteBtn);
     historyList.appendChild(span);
   });
 
-  historyItem_paddingtoprebuild();
+
 }
 
 
@@ -522,40 +727,99 @@ function renderFavorites() {
   favoritesList.innerHTML = "";
 
 
+  // 找出 favoritesArr 中没有被 historyArrTitle 任何一项“包含”的元素
+  // 然后从数据库 dataList 中找 如有则 push 到 historyArrTitle
+
+  // Start
+  // Part1
+  const toAdd = favoritesArr.filter(itemA =>
+    !historyArrTitle.some(itemB => itemB.includes(itemA))
+  );
+
+
+  toAdd.forEach(function (item, index) {
+    console.log(superMax.find(d => d.番号 === item.toUpperCase()));
+    item = superMax.find(d => d.番号 === item.toUpperCase())
+    if (item) {
+      historyArrTitle.push(item.番号 + " " + item.名称 + " " + item.演员)
+      console.log('已移至黑名单: ' + item.番号)
+      return item;
+    }
+  });
+
+
+  // Part2
+  const toAddNow = favoritesArr.filter(itemA =>
+    !historyArrTitle.some(itemB => itemB.includes(itemA))
+  );
+
+
+  toAddNow.forEach((item) => {
+    if (item) {
+      console.log(item)
+      historyArrTitle.push(item)
+    }
+  })
+
+  saveFavorites()
+
+  // End
+
+
+
   favoritesArr.forEach((num, index) => {
     title = ''
 
     historyArrTitle.forEach((item) => {
       if (item.includes(num)) {
         title = item
-        console.log(num + " " + item)
+        // console.log(num + " " + item)
       }
     })
+
+
+    if (getCookie('googtrans') !== '') { // 如果用户开启翻译 codeHover = num
+      codeHover = num
+    } else {
+      codeHover = num2Title(num);
+    }
 
     const span = document.createElement("span");
     span.className = "history-item";
     span.style.position = "relative";
     //// span.textContent = historyArrTitle[index];
     span.textContent = title;
-    span.title = "点击填入搜索框并显示详情，长按移除收藏";
+    // span.title = "点击填入搜索框并显示详情，长按移除收藏";
+    span.title = "点击填入搜索框并显示详情";
 
     span.onclick = function (e) {
       e.preventDefault(); // 防止默认行为干扰点击
       searchInput.value = num;
+
       if (isScriptLoaded()) {
         document.querySelector('input.gsc-input').value = num;
+        console.log('renderFav is here.')
       }
-      historyItem_normal();
-      codeHover = num;
-      historyItem_highlights();
+
+      // historyItem_normal();
+
+      if (getCookie('googtrans') !== '') { // 如果用户开启翻译 codeHover = num
+        codeHover = num
+      } else {
+        codeHover = num2Title(num);
+      }
+
+      console.log('renderFav: ' + codeHover)
+
+      historyItem_highlights('special');
       updateSearchHref();
-      const item = dataList["全部分类"].find(d => d.番号 === num);
+      const item = superMax.find(d => d.番号 === num);
       if (item) {
         showData(item);
       } else {
         display.innerHTML = "<br>未在<span>数据库</span>找到该<span>番号/关键字</span>的详细信息！请在确保输入<span>番号/关键字</span>后<span>直接点击搜索按钮</span>进行搜索。";
       }
-      historyItem_paddingtoprebuild();
+
     };
 
     let pressTimer;
@@ -563,15 +827,20 @@ function renderFavorites() {
       pressTimer = setTimeout(() => {
         e.preventDefault(); // 长按时阻止默认行为，防止文本选择
         if (num !== codeHover) {
-          alert('请先点击选中此番号！');
+          alert('请先点击选中此番号！' + "num: " + num + "codeHover: " + codeHover);
           return;
         }
-        if (confirm(`是否将番号 ${num} 从收藏移除？`)) {
+        confirmndExecute('', '是否将番号 ' + num + ' 从收藏移除？', () => {
+          // flashScroll('.container-result') 
           favoritesArr = favoritesArr.filter(item => item !== num);
           saveFavorites();
           renderFavorites();
-          historyItem_paddingtoprebuild();
-        }
+          setTimeout(() => {
+            historyItem_percent(); // 更新记录
+          }, 1000)
+        })
+
+
       }, 1000);
     }, { passive: false });
 
@@ -585,16 +854,19 @@ function renderFavorites() {
 
     span.onmousedown = function () {
       pressTimer = setTimeout(() => {
-        if (num !== codeHover) {
+        if (num2Title(num) !== codeHover && codeHover !== num) {
           alert('请先点击选中此番号！');
           return;
         }
-        if (confirm(`是否将番号 ${num} 从收藏移除？`)) {
+        confirmndExecute('', '是否将番号 ' + num + ' 从收藏移除？', () => {
           favoritesArr = favoritesArr.filter(item => item !== num);
           saveFavorites();
           renderFavorites();
-          historyItem_paddingtoprebuild();
-        }
+          setTimeout(() => {
+            historyItem_percent(); // 更新记录
+          }, 1000)
+        })
+
       }, 1000);
     };
 
@@ -615,53 +887,425 @@ function renderFavorites() {
       favoritesArr = favoritesArr.filter(item => item !== num);
       saveFavorites();
       renderFavorites();
+      setTimeout(() => {
+        historyItem_percent(); // 更新记录
+      }, 1000)
       if (searchInput.value === num) {
         searchInput.value = "";
         document.querySelector('input.gsc-input').value = "";
         updateSearchHref();
         display.innerHTML = "<br><p class='notranslate'>点击下方按钮</p><span class='notranslate'>随机抽取</span><p class='notranslate'>一个番号<><br><p class='notranslate'>或者</p><span class='notranslate'>输入番号/关键字</span><p class='notranslate'>进行搜索</p>";
       }
-      historyItem_paddingtoprebuild();
+
     };
     span.appendChild(deleteBtn);
     favoritesList.appendChild(span);
   });
-
-  historyItem_paddingtoprebuild();
 }
 
-clearHistoryBtn.onclick = function () {
-  if (confirm("确定要清除所有抽取记录吗？")) {
+
+function renderLaji() {
+  lajiList.innerHTML = "";
+
+  // 找出 lajiArr 中没有被 historyArrTitle 任何一项“包含”的元素
+  // 然后从数据库 dataList 中找 如有则 push 到 historyArrTitle
+
+  // Start
+  // Part1
+  const toAdd = lajiArr.filter(itemA =>
+    !historyArrTitle.some(itemB => itemB.includes(itemA))
+  );
+
+
+  toAdd.forEach(function (item, index) {
+    console.log(superMax.find(d => d.番号 === item.toUpperCase()));
+
+    item = superMax.find(d => d.番号 === item.toUpperCase())
+    if (item) {
+      historyArrTitle.push(item.番号 + " " + item.名称 + " " + item.演员)
+      console.log('historyArrTitle 新增番号: ' + item.番号)
+      return item;
+    }
+  });
+
+
+  historyArrTitle.forEach((item, index) => {
+    item = superMax.find(d => d.番号 === item.toUpperCase())
+    if (item) {
+      return item;
+    }
+  })
+
+
+  // Part2
+  const toAddNow = lajiArr.filter(itemA =>
+    !historyArrTitle.some(itemB => itemB.includes(itemA))
+  );
+
+
+  toAddNow.forEach((item) => {
+    if (item) {
+      console.log(item)
+      historyArrTitle.push(item)
+      console.log('historyArrTitle 新增番号: ' + item.番号)
+    }
+  })
+
+  saveLaji()
+
+  // End
+
+
+  lajiArr.forEach((num, index) => {
+    title = ''
+
+    historyArrTitle.forEach((item) => {
+      if (item.includes(num)) {
+        title = item;
+        //// console.log(num + " " + item);
+      }
+    })
+
+    const span = document.createElement("span");
+    span.className = "history-item";
+    span.style.position = "relative";
+    //// span.textContent = historyArrTitle[index];
+    span.textContent = title;
+    span.title = "点击填入搜索框并显示详情，长按加入收藏";
+
+    span.onclick = function (e) {
+      e.preventDefault(); // 防止默认行为干扰点击
+      searchInput.value = num;
+      if (isScriptLoaded()) {
+        document.querySelector('input.gsc-input').value = num;
+      }
+      historyItem_normal();
+
+
+      if (getCookie('googtrans') !== '') { // 如果用户开启翻译 codeHover = num
+        codeHover = num
+      } else {
+        codeHover = num2Title(num);
+      }
+
+      console.log('当前点击的是：\n\n' + codeHover)
+      historyItem_highlights('special');
+      updateSearchHref();
+      const item = superMax.find(d => d.番号 === num.toUpperCase());
+      if (item) {
+        showData(item);
+      } else {
+        display.innerHTML = "<div class='notranslate'><br>未在<span>数据库</span>找到该<span>番号/关键字</span>的详细信息！请在确保输入<span>番号/关键字</span>后<span>直接点击搜索按钮</span>进行搜索。</div>";
+      }
+    };
+
+    let pressTimer;
+    span.addEventListener('touchstart', function (e) {
+      pressTimer = setTimeout(() => {
+        e.preventDefault(); // 长按时阻止默认行为，防止文本选择
+        if (num2Title(num) !== codeHover && codeHover !== num) {
+          // alert('请先点击选中此番号！');
+          return;
+        }
+
+        if (favoritesArr.includes(num)) {
+          alert('此番号已加入收藏！');
+        }
+        else {
+          confirmndExecute('', '是否将番号 ' + num + ' 加入收藏？', () => {
+            // flashScroll('.container-result') 
+            favoritesArr.push(num);
+            saveFavorites();
+            renderFavorites();
+            setTimeout(() => {
+              historyItem_percent(); // 更新记录
+            }, 1000)
+          })
+
+        }
+
+      }, 1000);
+    }, { passive: false });
+
+    span.addEventListener('touchend', function () {
+      clearTimeout(pressTimer);
+    });
+
+    span.addEventListener('touchcancel', function () {
+      clearTimeout(pressTimer);
+    });
+
+    span.onmousedown = function () {
+      pressTimer = setTimeout(() => {
+        if (num2Title(num) !== codeHover && codeHover !== num) {
+          alert('请先点击选中此番号！');
+          return;
+        }
+        if (favoritesArr.includes(num)) {
+          alert('此番号已加入收藏！');
+        }
+        else {
+          confirmndExecute('', '是否将番号 ' + num + ' 加入收藏？', () => {
+            // flashScroll('.container-result') 
+            favoritesArr.push(num);
+            saveFavorites();
+            renderFavorites();
+            setTimeout(() => {
+              historyItem_percent(); // 更新记录
+            }, 1000)
+          })
+        }
+
+      }, 1000);
+    };
+
+    span.onmouseup = function () {
+      clearTimeout(pressTimer);
+    };
+
+    span.onmouseleave = function () {
+      clearTimeout(pressTimer);
+    };
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "";
+    deleteBtn.className = "delete-history-btn";
+    deleteBtn.title = "删除此记录";
+    deleteBtn.onclick = function (e) {
+      e.stopPropagation();
+
+      lajiArr = lajiArr.filter(item => item !== num);
+      saveLaji();
+
+      for (let i = historyArrTitle.length - 1; i >= 0; i--) {
+        if (historyArrTitle[i].includes(num)) {
+          historyArrTitle.splice(i, 1); // 删除当前元素 // 目前正确
+        }
+      }
+
+      saveLaji();
+      renderLaji();
+
+      setTimeout(() => {
+        historyItem_percent(); // 更新记录
+      }, 1000)
+
+      if (searchInput.value === num) {
+        searchInput.value = "";
+        document.querySelector('input.gsc-input').value = "";
+        updateSearchHref();
+        display.innerHTML = "<br><p class='notranslate'>点击下方按钮</p><span class='notranslate'>随机抽取</span><p class='notranslate'>一个番号</p><br><p class='notranslate'>或者</p><span class='notranslate'>输入番号/关键字</span><p class='notranslate'>进行搜索</p>";
+      }
+
+    };
+    span.appendChild(deleteBtn);
+    lajiList.appendChild(span);
+  });
+
+}
+
+/* ---------- 自定义弹窗逻辑 ---------- */
+const mask = document.getElementById('confirmMask');
+const cancel = mask.querySelector('.cancel');
+const ok = mask.querySelector('.ok');
+const maskText = document.querySelector('div.confirm-body');
+
+let resolvePromise;   // 用于 await 方式（可选）
+
+function showConfirm() {
+  mask.classList.add('show');
+
+  return new Promise(resolve => {
+    resolvePromise = resolve;
+
+    // 点击遮罩关闭（可选）
+    mask.onclick = e => {
+      if (e.target === mask) closeConfirm(false);
+    };
+    cancel.onclick = () => closeConfirm(false);
+    ok.onclick = () => closeConfirm(true);
+  });
+}
+
+function closeConfirm(result) {
+  mask.classList.remove('show');
+  mask.onclick = cancel.onclick = ok.onclick = null;
+  resolvePromise(result);
+}
+
+/* ---------- 确认后执行原逻辑 ---------- */
+async function confirmndExecute(historyOrFav, itext = '', fun) {
+  // 更新提示文字
+  if (itext !== '') {
+    maskText.textContent = itext;
+  }
+
+  // 弹出确认框
+  const confirmed = await showConfirm();
+  if (!confirmed) return;   // 用户取消，直接退出
+
+  // ---------- 原有清空逻辑 ----------
+  if (historyOrFav === 'history') {
     historyArr = [];
-    historyArrTitle = [];
     saveHistory();
     renderHistory();
-    historyItem_paddingtoprebuild();
-    historyItem_percent();
-  }
-};
-
-clearFavoritesBtn.onclick = function () {
-  if (confirm("确定要清除所有收藏吗？")) {
+  } else if (historyOrFav === 'Fav') {
     favoritesArr = [];
     saveFavorites();
     renderFavorites();
-    historyItem_paddingtoprebuild();
+    setTimeout(() => {
+      historyItem_percent(); // 更新记录
+    }, 1000)
   }
+  // ------------------------------------
+
+  // 执行传入的回调（若有）
+  if (typeof fun === 'function') {
+    try {
+      await fun();   // 支持同步或异步回调
+    } catch (err) {
+      console.error('confirmndExecute callback error:', err);
+    }
+  }
+}
+
+/* 替换原来的 onclick */
+clearHistoryBtn.onclick = function () {
+  confirmndExecute('history', '确定要清除所有搜索记录吗？');
 };
 
+clearFavoritesBtn.onclick = function () {
+  confirmndExecute('Fav', '确定要清除所有收藏记录吗？'); // 
+};
+
+clearLajiBtn.onclick = function () {
+  confirmndExecute('', '确定要清除所有已删除记录吗？', (() => {
+    lajiArr = []
+    saveLaji();
+    renderLaji();
+
+    setTimeout(() => {
+      historyItem_percent(); // 更新记录
+    }, 1000)
+
+  }));
+};
+
+
 renderHistory();
-renderFavorites();
+setTimeout(() => {
+  renderFavorites();
+  setTimeout(() => {
+    renderLaji();
+    setTimeout(() => {
+      historyItem_percent(); // 更新记录
+    }, 1000)
+  }, 1500)
+}, 1500)
+
+
+
 
 function customSearchEvent() {
+
+
+  // 找出 historyArr 中没有被 historyArrTitle 任何一项“包含”的元素
+  // 然后从数据库 dataList 中找 如有则 push 到 historyArrTitle
+
+  // Start
+  // Part1
+
+  const toAdd = historyArr.filter(itemA =>
+    !historyArrTitle.some(itemB => itemB.includes(itemA))
+  );
+
+  console.log(`"customSearchEvent(): 未添加至 historyArrTitle ：" + toAdd`)
+
+  toAdd.forEach(function (item, index) {
+    console.log("customSearchEvent() 新增番号: " + superMax.find(d => d.番号 === item.toUpperCase()));
+    item = superMax.find(d => d.番号 === item.toUpperCase())
+    if (item) {
+      historyArrTitle.push(item.番号 + " " + item.名称 + " " + item.演员)
+      console.log('historyArrTitle 新增番号: ' + item.番号)
+      return item;
+    }
+  });
+
+
+  // Part2
+  const toAddNow = historyArr.filter(itemA =>
+    !historyArrTitle.some(itemB => itemB.includes(itemA))
+  );
+
+
+  toAddNow.forEach((item) => {
+    if (item) {
+      console.log("customSearchEvent() 新增番号： " + item)
+      historyArrTitle.push(item)
+      console.log('historyArrTitle 新增番号: ' + item.番号)
+    }
+  })
+
+  saveHistory()
+
+  // End
+
+
   codeHover = document.querySelector('input.gsc-input').value;
   var customSearchEventCode = document.querySelector('input.gsc-input').value;
+
+
   if (!historyArr.includes(customSearchEventCode) && customSearchEventCode !== "") {
     historyArr.push(customSearchEventCode);
-    historyArrTitle.push(customSearchEventCode);
+
+
+    var list = []
+    list.push(customSearchEventCode)
+    var temp = dataList['全部分类']
+    // dataList['出轨🍷']
+
+    window.list = list;
+
+    list.forEach(listItem => {
+      const listText = listItem.trim();
+      const listCode = listText.split(/\s+/)[0];
+      console.log(listCode)
+      const matchedTemp = temp.find(t => t.番号 === listCode);
+      console.log(matchedTemp)
+
+      if (matchedTemp) {
+        console.log('historyArrTitle 找到了')
+        // 构建 temp 的关键词（演员为 - 就忽略）
+        const tempKeywords = [
+          matchedTemp.番号,
+          matchedTemp.名称,
+          matchedTemp.演员 === "-" ? "" : matchedTemp.演员
+        ].join(" ").trim();
+        historyArrTitle.push(matchedTemp.番号 + " " + matchedTemp.名称 + " " + matchedTemp.演员)
+        return tempKeywords
+      } else {
+        historyArrTitle.push(customSearchEventCode); // 问题出在这里
+        return customSearchEventCode
+      }
+
+    })
+
+    // 谷歌搜索到先到 json 里找
+
+
+    console.log('historyArrTitle 新增番号: ' + customSearchEventCode)
     saveHistory();
     renderHistory();
+    flashScroll('div.container-result', 500, 'up');   // 搜索结果回到顶部
   } else if (historyArr.includes(customSearchEventCode) && customSearchEventCode !== "") {
+
+    const item = superMax.find(d => d.番号 === customSearchEventCode.toUpperCase());
+
+    if (item) {
+      showData(item);
+    } else {
+      display.innerHTML = "<div class='notranslate'><br>未在<span>数据库</span>找到该<span>番号/关键字</span>的详细信息！请在确保输入<span>番号/关键字</span>后<span>直接点击搜索按钮</span>进行搜索。</div>";
+    }
 
     historyArr = historyArr.filter(num => num !== customSearchEventCode);
     historyArr.push(customSearchEventCode);
@@ -677,44 +1321,55 @@ function customSearchEvent() {
       const [matchedItem] = historyArrTitle.splice(index, 1);
       // 重新添加到末尾
       historyArrTitle.push(matchedItem);
+      console.log('historyArrTitle 新增番号: ' + customSearchEventCode)
     }
-
-    /*
-    for (let i = historyArrTitle.length - 1; i >= 0; i--) {
-      if (historyArrTitle[i].includes(customSearchEventCode)) {
-        historyArrTitle.splice(i, 1); // 删除当前元素
-      }
-    }
-    historyArrTitle.push(customSearchEventCode);
-    */
 
     saveHistory();
     renderHistory();
+    console.log('到这里了')
+    historyItem_highlights('special');
   } else {
     console.log("Error: Unable to update history.");
   }
+
   historyItem_normal();
   historyItem_highlights();
-  historyItem_paddingtoprebuild();
+  console.log('到这里了')
   return customSearchEventCode;
 }
 
-function historyItem_highlights() {
-  document.querySelectorAll('.history-item').forEach(span => {
-    if (span.textContent.includes(codeHover)) {
-      console.log(span.textContent)
-      span.classList.add('gradient-button');
-    }
-  });
+
+
+function historyItem_highlights(x) {
+  const el = document.querySelectorAll('.history-item');
+  if (x == 'special') {
+    el.forEach(span => {
+      if (span.textContent.indexOf(codeHover) !== -1) {
+        console.log("当前高亮的文本是：\n\n" + span.textContent)
+        span.classList.add('gradient-button');
+        //historyItem_normal();
+      }
+    });
+  } else {
+    el.forEach(span => {
+      if (span.textContent == codeHover) {
+        console.log("当前高亮的文本是：\n\n" + span.textContent)
+        span.classList.add('gradient-button');
+        historyItem_normal();
+      }
+    });
+  }
 }
 
 function historyItem_normal() {
   document.querySelectorAll('.history-item').forEach(span => {
-    if (!span.textContent.includes(codeHover)) {
+    //// if (!span.textContent.includes(codeHover)) {
+    if (span.textContent !== codeHover) {
       span.classList.remove('gradient-button');
     }
   });
 }
+
 
 function historyItem_percent() {
   if (!window.dataList) {
@@ -735,18 +1390,30 @@ function historyItem_percent() {
     const isMatched = dataList[selectedCategory].some(dataItem => dataItem.番号 === historyItem);
     return count + (isMatched ? 1 : 0);
   }, 0);
+
+
+
+
   const proportion = dataList[selectedCategory].length > 0 ? (matchedCount / dataList[selectedCategory].length) * 100 : 0;
+  const favcountHas = percentAB(uniqueById, favoritesArr, 'cf')
+  document.getElementById('favcountHas').textContent = favcountHas
+  document.getElementById('selectArrcountFav').textContent = uniqueById.length
   console.log(`已抽取番号数量: ${matchedCount}`);
   console.log(`匹配比例: ${proportion.toFixed(4)}%`);
   console.log("数组名称: " + "dataList['" + selectedCategory + "']");
   console.log(`番号实际存在数量: ${dataList[selectedCategory].length}`);
   console.log("按番号属性去重后的数量:", uniqueById.length);
   document.getElementById('count').textContent = uniqueById.length;
+  document.getElementById('selectArrcount').textContent = uniqueById.length;
+  document.getElementById('lajicountHas').textContent = uniqueById.length - percentAB(uniqueById, lajiArr);
   document.getElementById('countHas').textContent = matchedCount;
   document.getElementById('percent').textContent = proportion.toFixed(1) + '%';
+
 }
 
+
 function addGlobalListener() {
+
   setTimeout(() => {
     if (isScriptLoaded()) {
       var button = document.querySelector('.gsc-search-button.gsc-search-button-v2');
@@ -769,7 +1436,7 @@ function addGlobalListener() {
       document.querySelector('.container-search').classList.add('hidden');
     } else {
       document.querySelector('div.search-area').classList.add('show');
-      historyItem_paddingtoprebuild();
+
       if (document.getElementById('alert') == null) {
         const alertDiv = document.createElement('div');
         alertDiv.id = 'alert';
@@ -787,6 +1454,103 @@ function addGlobalListener() {
       }
     }
   }, 3000);
+
+
+
+  // 简单的节流实现
+  function throttle(func, limit) {
+    let lastFunc;
+    let lastRan;
+    return function () {
+      const context = this;
+      const args = arguments;
+      if (!lastRan) {
+        func.apply(context, args);
+        lastRan = Date.now();
+      } else {
+        clearTimeout(lastFunc);
+        lastFunc = setTimeout(function () {
+          if ((Date.now() - lastRan) >= limit) {
+            func.apply(context, args);
+            lastRan = Date.now();
+          }
+        }, limit - (Date.now() - lastRan));
+      }
+    }
+  }
+
+
+  // 页面底部时间
+  const mm = document.getElementById('memetime')
+  if (mm) {
+    mm.textContent = currenttimeW['current_time'].formatted_local;
+  }
+
+  // 返回顶部 top UP 
+  document.getElementById('up2Top').addEventListener('click', function () {
+
+    const el = document.getElementById('google_translate_element'); // 关闭右侧菜单
+    if (el) {
+      if (el.offsetHeight > 200) {
+        document.querySelector(".collapsible-header").click()
+      }
+    }
+
+    const now = new Date().toISOString();          // 2025-11-12T03:21:xx.xxxZ
+    const user = '@limboprossr';                   // 你的 X Handle
+    // 顺序执行（可随意调换）
+    flashScroll('.wrap', 500, 'up', null, 1, true);               // 1. 回到顶部
+    flashScroll('div.container-result', 500, 'up', null, 1, true);               // 1. 回到顶部
+    flashScroll('body', 500, 'up', null, 1, true);               // 1. 回到顶部
+    flashScroll('html', 500, 'up', null, 1, true);               // 1. 回到顶部
+    flashScroll('body', null, null, null, null, true)
+  });
+
+
+  // 查看
+
+
+  scrollToResult("#result", ".container-result", '.container-result');
+  scrollToResult("#fav", ".container-fav", '.container-result')
+  scrollToResult("#laji", ".container-laji", '.container-result')
+  scrollToResult("#lianxi", ".container-footer", '.container-result')
+
+
+  // 监听非指定元素外的点击事件 Start
+  // 1. 排除的元素
+  const excludeContainer = document.querySelector('div.container-result'); // 抽取结果
+  const excludeInputs = document.querySelectorAll('input[autocomplete]');
+
+  // 2. 全局点击
+  document.addEventListener('click', e => {
+    const t = e.target;
+
+    // 3. 任意一个排除区域命中 → 直接返回
+    if (excludeContainer?.contains(t)) return;
+    if (Array.from(excludeInputs).some(el => el.contains(t))) return;
+
+    // 4. 外部点击逻辑
+    console.log('外部点击', t);
+
+    // 自动提取当前页面的 gsc.q 并显示
+    const hashParams = new URLSearchParams(window.location.hash.slice(1));
+    const q = hashParams.get('gsc.q');
+    const searchTerm = q ? decodeURIComponent(q) : '未找到';
+
+    console.log('当前 URL:', window.location.href);
+    console.log('搜索词 (gsc.q):', searchTerm);
+
+    // 可选：弹窗显示
+    console.log('当前搜索: ' + searchTerm);
+
+    if (searchTerm !== '未找到') {
+      customSearchEvent()
+    }
+
+  });
+
+  // End
+
 }
 
 function monitorElementChanges(targetSelector, callback) {
@@ -820,6 +1584,536 @@ function openInNewTab(url) {
   }
 }
 
+
+// 控制侧边栏按钮
+
+const collapsible = document.querySelector('.collapsible');
+const header = collapsible.querySelector('.collapsible-header');
+
+header.addEventListener('click', () => {
+  collapsible.classList.toggle('active');
+});
+
+// 单选高亮 + 输出 ID
+const buttons = document.querySelectorAll('.option-btn');
+buttons.forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation(); // 防止触发容器收起
+    buttons.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    console.log('选择:', btn.id);
+  });
+});
+
+
+var temp = 0
+
+// 其他函数
+
+
+
+// 对比每日新增数据
+// Start 
+const STORAGE_KEY = 'daily_data_tracker';
+
+
+/**
+ * 辅助函数：创建或覆盖一个包含昨日日期和指定长度的 localStorage 记录。
+ * * @param {number} length - 你希望昨天的数组长度是多少。
+ * @returns {void}
+ */
+function setYesterdayLocalStorage(length) {
+  // 1. 获取昨天的日期
+  const yesterday = new Date();
+  // 将日期设置为昨天
+  yesterday.setDate(yesterday.getDate() - 1);
+  // 格式化日期字符串
+  const yesterdayDateString = yesterday.toLocaleDateString('zh-CN');
+
+  // 2. 构造数据对象
+  const yesterdayData = {
+    date: yesterdayDateString,
+    currentLength: length, // 这个长度会被 checkAndTrackDailyChange 视为 previousLength
+    previousLength: null // 测试场景下这个值不重要
+  };
+
+  // 3. 存储到 localStorage
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(yesterdayData));
+
+  console.log(`✅ 成功设置昨日 localStorage:`);
+  console.log(`日期: ${yesterdayDateString}`);
+  console.log(`记录长度: ${length}`);
+  console.log("现在你可以运行 checkAndTrackDailyChange 函数进行对比测试。");
+}
+
+
+/**
+ * 从 localStorage 获取昨天的追踪数据。
+ * @returns {object|null}
+ */
+function getYesterdayData() {
+  const storedData = localStorage.getItem(STORAGE_KEY);
+  if (storedData) {
+    try {
+      return JSON.parse(storedData);
+    } catch (e) {
+      console.error("解析 localStorage 数据失败:", e);
+      return null;
+    }
+  }
+  return null;
+}
+
+/**
+ * 存储今天的追踪数据。
+ * @param {number} currentLength - 数组当前的长度。
+ * @param {number|null} previousLength - 昨天的长度。
+ */
+function setTodayData(currentLength, previousLength = null) {
+  // 使用 'zh-CN' 确保日期格式稳定，如 '2025/11/14'
+  const today = new Date().toLocaleDateString('zh-CN');
+  const dataToStore = {
+    date: today,
+    currentLength: currentLength,
+    previousLength: previousLength
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToStore));
+}
+
+
+/**
+ * 每日检查 uniqueByqbflCR 的长度变化并更新 localStorage。
+ * @param {Array} uniqueByqbflCR - 您的目标数组。
+ */
+function checkAndTrackDailyChange(uniqueByqbflCR) {
+  const today = new Date().toLocaleDateString('zh-CN');
+  const currentLength = uniqueByqbflCR.length;
+  const yesterdayData = getYesterdayData();
+  let changeMessage = "";
+
+  // 底部数据更新
+  // 等所有元素加载完毕后再执行
+
+  setTimeout(() => {
+    document.getElementById('icount').innerText = currentLength;
+  }, 5000);
+
+
+  console.log("--- 🚀 开始每日追踪 ---");
+
+  if (yesterdayData && yesterdayData.date === today) {
+    // A. 仍在同一天：不对比，不更新
+    changeMessage = `[${today}] 数据已追踪。当前长度: ${currentLength}。`;
+
+  } else if (yesterdayData && yesterdayData.date !== today) {
+    // B. 进入新的一天：进行对比
+    const previousLength = yesterdayData.currentLength;
+    const difference = currentLength - previousLength;
+
+    if (difference > 0) {
+      document.getElementById('yesterday').innerText = "，较昨日新增" + difference + "部";
+      changeMessage = `✅ **新增数据!** 昨日: ${previousLength}，今日: ${currentLength}，新增了 ${difference} 条。`;
+    } else if (difference < 0) {
+      document.getElementById('yesterday').innerText = "，较昨日减少" + difference + "部";
+      changeMessage = `⚠️ **数据减少!** 昨日: ${previousLength}，今日: ${currentLength}，减少了 ${Math.abs(difference)} 条。`;
+    } else {
+      changeMessage = `ℹ️ **数据无变化。** 长度均为 ${currentLength}。`;
+    }
+
+    // **更新 localStorage**
+    setTodayData(currentLength, previousLength);
+
+  } else {
+    // C. 第一次运行或 localStorage 中没有数据
+    changeMessage = `✨ **首次追踪。** 记录当前长度 ${currentLength}。`;
+    // 首次运行，不设置 previousLength
+    setTodayData(currentLength);
+  }
+
+  console.log(changeMessage);
+  console.log("--- 🏁 追踪结束 ---");
+  // 返回消息，方便在 UI 上显示
+  return changeMessage;
+}
+
+setTimeout(() => {
+  checkAndTrackDailyChange(uniqueByqbflCR)
+}, 5000)
+
+// 对比每日新增数据
+// END
+
+
+// 右侧滚动按钮
+function scrollToResult(buttonSelector, targetSelector, marginTop) {
+  document.querySelector(buttonSelector).addEventListener('click', function () { //  搜索记录
+    const el = document.querySelector(targetSelector);
+    const elMarginTop = getMarginTop(marginTop)
+
+    if (elMarginTop > 10) {
+      var top = elMarginTop
+      console.log(el + ": wtf")
+
+      // 获取元素相对于视口的顶部位置
+      const elementTop = el.getBoundingClientRect().top + window.pageYOffset;
+      // 目标滚动位置 = 元素顶部位置 - 40px
+      const targetScrollY = elementTop - top - temp;
+
+      window.scrollTo({
+        top: targetScrollY,
+        behavior: 'smooth'
+      });
+
+    } else {
+      flashScroll('.container-result', 500, 'up')
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+  })
+
+}
+
+
+function getMarginTop(selector) {
+  const el = document.querySelector(selector);
+  if (!el) {
+    console.warn(`[getMarginTop] 元素未找到: ${selector}`);
+    return 0;
+  }
+
+  const style = window.getComputedStyle(el);
+  const marginTop = style.marginTop; // 字符串，如 "24px"
+
+  const value = parseFloat(marginTop);
+  console.log('marginTop: ' + value)
+  return isNaN(value) ? 0 : value; // 防 auto / inherit 等
+}
+
+
+
+// 跳转到ID元素位置
+function jumpTo(id, options = {}) {
+  const el = document.querySelector(id);
+  if (!el) return;
+
+  const defaults = { behavior: 'smooth', block: 'start' };
+  const opts = { ...defaults, ...options };
+
+  el.scrollIntoView(opts);
+}
+
+
+// 判断随机抽取过程中全部抽取完毕的问题
+function percentAB(dataMax, dataMin, whatUwant) {
+  // === 提取 nvyouArr 的番号 ===
+  const dataListGet = dataMax.map(item => item.番号);
+
+  // === 转为 Set 提高查找效率 ===
+  const lajiSet = new Set(dataMin);
+
+  // === 找出交集（重复项）===
+  const duplicates = dataListGet.filter(code => lajiSet.has(code));
+
+  // === 计算统计 ===
+  const totalNvyous = dataMax.length;
+  const duplicateCount = duplicates.length;
+  const uniqueCount = totalNvyous - duplicateCount;
+  const duplicateRate = ((duplicateCount / totalNvyous) * 100).toFixed(2) + '%';
+
+  // === 输出结果 ===
+  console.log({
+    dataMax: dataListGet,
+    交集_重复番号: duplicates,
+    重复数量: duplicateCount,
+    dataMin_总数量: totalNvyous,
+    未重复数量: uniqueCount,
+    重复率: duplicateRate
+  });
+
+  // 控制台输出：
+  // {
+  //   nvyouArr_番号列表: [ 'ATID-566', 'SAME-044', 'START-036', 'JUL-787', 'ADN-619', 'MIMK-103' ],
+  //   交集_重复番号: [ 'ATID-566', 'SAME-044', 'START-036', 'JUL-787', 'ADN-619', 'MIMK-103' ],
+  //   重复数量: 6,
+  //   nvyouArr_总数量: 6,
+  //   未重复数量: 0,
+  //   重复率: '100.00%'
+  // }
+
+  if (whatUwant == 'cf') {
+    return duplicateCount
+  } else if (whatUwant == 'wcf') {
+    return uniqueCount
+  } else {
+    return uniqueCount;
+  }
+}
+
+
+
+function isMobile() {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
+
+/**
+ * 监听元素可见性（防抖 + 多元素）
+ * @param {string} selector
+ * @param {(el: Element, out: boolean) => void} callback
+ * @param {Object} [options] { threshold, root, rootMargin, debounce }
+ * @returns {() => void} 清理函数
+ */
+function observeElementVisibility(selector, callback, options = {}) {
+  const {
+    threshold = 0,
+    root = null,
+    rootMargin = '0px',
+    debounce = 50
+  } = options;
+
+  const elements = document.querySelectorAll(selector);
+  if (!elements.length) return () => { };
+
+  const timers = new WeakMap();
+  const lastState = new WeakMap();
+
+  const observer = new IntersectionObserver(
+    entries => {
+      entries.forEach(entry => {
+        const el = entry.target;
+        const isOut = !entry.isIntersecting;
+        const prev = lastState.get(el);
+
+        // 状态未变 → 直接跳过
+        if (prev === isOut) return;
+
+        // 清除旧定时器
+        if (timers.has(el)) clearTimeout(timers.get(el));
+
+        // 防抖：状态稳定 debounce ms 后回调
+        const timer = setTimeout(() => {
+          lastState.set(el, isOut);
+          callback(el, isOut);
+        }, debounce);
+
+        timers.set(el, timer);
+      });
+    },
+    { root, threshold, rootMargin }
+  );
+
+  elements.forEach(el => {
+    observer.observe(el);
+    lastState.set(el, null);
+  });
+
+  // 返回统一清理函数
+  return () => {
+    elements.forEach(el => {
+      if (timers.has(el)) clearTimeout(timers.get(el));
+    });
+    observer.disconnect();
+  };
+}
+
+
+
+
+/**
+ * 通过 scroll 事件监听元素是否移出视口（防抖 + 状态记忆）
+ * @param {string} selector
+ * @param {(el: Element, isOut: boolean) => void} callback
+ * @param {Object} [options] { debounce, scrollContainer }
+ * @returns {() => void} 清理函数
+ */
+function watchScrollOutOfView(selector, callback, options = {}) {
+  const {
+    debounce = 80,
+    scrollContainer = window
+  } = options;
+
+  const elements = document.querySelectorAll(selector);
+  if (!elements.length) return () => { };
+
+  // 记忆每个元素的上一次出视界状态
+  const lastState = new WeakMap();
+
+  let timer = null;
+
+  // 检查是否出视界
+  const isOutOfView = (el) => {
+    const rect = el.getBoundingClientRect();
+    const vh = window.innerHeight || document.documentElement.clientHeight;
+    const vw = window.innerWidth || document.documentElement.clientWidth;
+
+    return (
+      rect.bottom < 0 ||
+      rect.top > vh ||
+      rect.right < 0 ||
+      rect.left > vw
+    );
+  };
+
+  // 执行检查
+  const runCheck = () => {
+    elements.forEach(el => {
+      const currentOut = isOutOfView(el);
+      const prevOut = lastState.get(el);
+
+      // 状态未变化 → 跳过
+      if (prevOut === currentOut) return;
+
+      // 状态变化 → 更新记忆 + 触发回调
+      lastState.set(el, currentOut);
+      callback(el, currentOut);
+    });
+  };
+
+  // 滚动事件（防抖）
+  const onScroll = () => {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(runCheck, debounce);
+  };
+
+  const container = scrollContainer === window ? window : scrollContainer;
+  container.addEventListener('scroll', onScroll, { passive: true });
+
+  // 初始检查（设置初始状态）
+  elements.forEach(el => lastState.set(el, null));
+  runCheck();
+
+  // 清理
+  return () => {
+    if (timer) clearTimeout(timer);
+    container.removeEventListener('scroll', onScroll);
+  };
+}
+
+
+
+
+/**
+ * flashScroll - 高级滚动控制（带日志）
+ * @param {Element|string} container - 目标容器
+ * @param {number} [delay=1000] - 闪一下时等待时间
+ * @param {'up'|'down'|'middle'|any} [direction] - 方向指令
+ * @param {number} [ratio] - 直接滚动到指定比例 (0~1)
+ * @param {number} [stepRatio] - 步进滚动：每次滚动总高度的多少比例 (0~1)
+ * @param {boolean} [log=false] - 是否在滚动结束后打印当前滚动信息
+ */
+function flashScroll(
+  container,
+  delay = 1000,
+  direction,
+  ratio,
+  stepRatio,
+  log = false
+) {
+  const el = typeof container === 'string' ? document.querySelector(container) : container;
+  if (!el) return console.warn('flashScroll: 容器未找到');
+
+  const maxScroll = el.scrollHeight - el.clientHeight;
+  if (maxScroll <= 0) {
+    if (log) console.log('flashScroll: 容器无可滚动内容');
+    return;
+  }
+
+  const smooth = { behavior: 'smooth' };
+  const dir = typeof direction === 'string' ? direction.toLowerCase().trim() : '';
+
+  // ---------- 1. 直接按 ratio 滚动 ----------
+  if (typeof ratio === 'number' && ratio >= 0 && ratio <= 1) {
+    const target = maxScroll * ratio;
+    el.scrollTo({ top: target, ...smooth });
+    if (log) printScrollInfo(el, target, maxScroll);
+    return;
+  }
+
+  // ---------- 2. 步进滚动 ----------
+  if (typeof stepRatio === 'number' && stepRatio > 0 && stepRatio <= 1) {
+    const stepDistance = maxScroll * stepRatio;
+    let targetTop;
+
+    if (dir === 'up') {
+      targetTop = Math.max(el.scrollTop - stepDistance, 0);
+    } else {
+      // 默认 down 或其他
+      targetTop = Math.min(el.scrollTop + stepDistance, maxScroll);
+    }
+
+    el.scrollTo({ top: targetTop, ...smooth });
+    if (log) printScrollInfo(el, targetTop, maxScroll);
+    return;
+  }
+
+  // ---------- 3. 传统行为 ----------
+  let target = 0;
+  if (dir === 'up') {
+    target = 0;
+  } else if (dir === 'down') {
+    target = maxScroll;
+  } else if (dir === 'middle' || dir === 'center') {
+    target = maxScroll / 2;
+  } else {
+    // 默认：闪一下
+    el.scrollTo({ top: maxScroll, ...smooth });
+    setTimeout(() => el.scrollTo({ top: 0, ...smooth }), delay);
+    if (log) {
+      // 闪一下时分别打印两次
+      printScrollInfo(el, maxScroll, maxScroll);
+      setTimeout(() => printScrollInfo(el, 0, maxScroll), delay + 50);
+    }
+    return;
+  }
+
+  el.scrollTo({ top: target, ...smooth });
+  if (log) printScrollInfo(el, target, maxScroll);
+}
+
+/** 统一的日志打印函数（在滚动结束后调用） */
+function printScrollInfo(el, targetTop, maxScroll) {
+  // 为了兼容平滑滚动，这里使用一次性的 scroll 监听
+  const listener = () => {
+    const current = el.scrollTop;
+    const ratio = maxScroll ? current / maxScroll : 0;
+    console.log(
+      `%c[flashScroll] %c当前位置：${current.toFixed(2)} px | 比例：${(ratio * 100).toFixed(2)}% | 最大可滚动：${maxScroll.toFixed(2)} px`,
+      'color:#2e86de', 'color:#555'
+    );
+    el.removeEventListener('scroll', listener);
+  };
+
+  // 立即执行一次（如果已经是目标位置或不支持 smooth）
+  if (Math.abs(el.scrollTop - targetTop) < 1) {
+    listener();
+    return;
+  }
+
+  el.addEventListener('scroll', listener, { once: true });
+}
+
+/* -------------------------------------------------
+   clearSelection - 保持原样
+   ------------------------------------------------- */
+function clearSelection() {
+  if (window.getSelection) {
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+      selection.removeAllRanges();
+    }
+  }
+
+  const activeEl = document.activeElement;
+  if (activeEl && typeof activeEl.blur === 'function') {
+    activeEl.blur();
+  }
+
+  setTimeout(() => {
+    if (activeEl && typeof activeEl.focus === 'function') {
+      activeEl.focus();
+    }
+  }, 0);
+}
 
 // 去重函数 示例
 
@@ -899,3 +2193,60 @@ function selectElementText(element) {
     console.warn('您的浏览器不支持Selection API，无法模拟文本高亮选取。');
   }
 }
+
+
+// 若还有 D、E... 请继续添加
+// const arrays = [A, B, C];  // 按顺序排列：A→B→C→...
+// 多个数组中重复的部分
+
+function historyBest(abcd) {
+  const arrays = abcd // 按顺序排列：A→B→C→
+  const result = [];
+
+  for (let i = 1; i < arrays.length; i++) {
+    const prev = arrays[i - 1];
+    const curr = arrays[i];
+
+    const prevCodes = new Set(prev.map(x => x.番号));
+    const duplicatesInCurrent = curr.filter(x => prevCodes.has(x.番号));
+
+    result.push(...duplicatesInCurrent);
+  }
+
+  console.log(JSON.stringify(result, null, 2));
+  return result;
+}
+
+// var historyBest = historyBest([dataList['出轨🍷'], dataList['巨乳🐻'], dataList['人妻👰'], dataList['泳装👙'], dataList['多P👥'], dataList['肉漫改编✍️'], dataList['办公室🤤'], dataList['制服诱惑👩🏻‍💼'], dataList['2025年最想要[未翻译]']])
+
+
+// Start // 寻找多个数组中的重复部分
+function findDuplicates(...arrays) {
+  // 统计每个番号出现的记录（原始对象）
+  const seen = new Map(); // key: 番号 → value: [原始对象1, 原始对象2, ...]
+
+  arrays.forEach(arr => {
+    arr.forEach(item => {
+      const key = item.番号;
+      if (!seen.has(key)) {
+        seen.set(key, []);
+      }
+      seen.get(key).push(item);
+    });
+  });
+
+  // 只保留出现 >=2 次的番号的所有原始记录
+  const duplicates = [];
+  seen.forEach((records, key) => {
+    if (records.length >= 2) {
+      duplicates.push(...records);
+    }
+  });
+
+  return duplicates;
+}
+
+// const onlyDuplicates = findDuplicates(dataMax['chugui'], dataMax['juru'], dataMax['renqi'], dataMax['yongzhuang'], dataMax['duop'], dataMax['roumangaibian'], dataMax['office'], dataMax['zhifuyouhuo'], dataMostwanted['most_wanted_201511']);
+// console.log("重复出现的记录：", onlyDuplicates);
+
+// End
