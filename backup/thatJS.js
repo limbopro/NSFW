@@ -1,6 +1,8 @@
 
 // 控制台获取 dataList 复制到 ori.json
 //// console.log(JSON.stringify(dataList, null, 2)); // 格式化输出，带缩进
+//// deduplicateByNumberMaxFav(dailyBestW['old'])
+/// console.log(JSON.stringify(deduplicateByNumberMaxFav(dailyBestW['old']), null, 2)) //  单数组去重
 
 function oriJsonMake1() {
 
@@ -136,6 +138,12 @@ function sortByFavoritesDesc(data) {
  * @param {string} [label='去重结果'] - 控制台输出的标签名（可选）
  * @returns {Array} 去重后的数组
  */
+
+/**
+ * 
+ * /// console.log(JSON.stringify(deduplicateByNumberMaxFav(dailyBestW['old']), null, 2)) //  单数组去重
+ * 
+*/
 
 function deduplicateByNumberMaxFav(data, label = '去重结果', consoleChoice) {
     // ------------------- 统一转成数组 -------------------
