@@ -147,6 +147,8 @@ function sortByFavoritesDesc(data) {
 
 function deduplicateByNumberMaxFav(data, label = '去重结果', consoleChoice) {
     // ------------------- 统一转成数组 -------------------
+    // console.log(JSON.stringify(deduplicateByNumberMaxFav(dailyBestW['old']), null, 2)) //  单数组去重
+    // console.log(JSON.stringify(deduplicateByNumberMaxFav(dataList['本月热门🔥🔞']), null, 2)) //  单数组去重
     let arrayDataList;
     if (!Array.isArray(data)) {
         console.warn('data 不是数组，正在转换为数组:', typeof data);

@@ -43,14 +43,16 @@ async function fetchCodes() {
 
     // 1. 最佳评级数据
     const iBestratedfiles = [
-        "bestrated_2025_11.json",
-        "bestrated_translated.json",
+        //"bestrated_2025_11.json",
+        //"bestrated_translated.json",
         "2024best.json",
         "2024_best_netflav.json",
         "2023_best_netflav.json",
         "2022_best_netflav.json",
         "2021_best_netflav.json",
-        "2020_best_netflav.json"
+        "2020_best_netflav.json",
+        "40000Fav.json",
+        "2wFav.json",
     ];
 
     window.dataBestrated = await loadJsonFiles(iBestratedfiles, "./bestrated/");
@@ -139,6 +141,8 @@ async function fetchCodes() {
     ]; // 新增 2020 年评价最佳分类
 
     dataList['本月热门🔥🔞'] = dailyBestW['monthly']
+    dataList["综合分类破2万人收藏🧸ྀི"] = dataBestrated['2wFav']
+    dataList["综合分类破3万人收藏🧸ྀི"] = dataBestrated['40000Fav']
     //dataList['昨日热门🔥🔞'] = dailyBestW['old']
     dataList['夫妻交换🎎'] = dataMax['fuqijiaohuan'];
     dataList['办公室🤤'] = dataMax['office'];
@@ -166,8 +170,7 @@ async function fetchCodes() {
     // 多个分类中都出现的番号，然后汇集到一起
     const onlyDuplicates = findDuplicates(dataMax['chugui'], dataMax['juru'], dataMax['renqi'], dataMax['yongzhuang'], dataMax['duop'], dataMax['roumangaibian'], dataMax['office'], dataMax['zhifuyouhuo'], dataMostwanted['most_wanted_201511']);
     // 对汇集到一起的番号再进行一次去重
-    dataList['综合分类破万收藏🧸ྀི'] = deduplicateByNumberMaxFav(onlyDuplicates, 'no')
-
+    dataList['综合分类破万人收藏🧸ྀི'] = deduplicateByNumberMaxFav(onlyDuplicates, 'no')
     dataList['综合●'] = [
         ...dataMax['friends'],
         ...dataMax['father'],
@@ -191,7 +194,7 @@ async function fetchCodes() {
 
     window.superMax = [...dataList["全部分类"]].filter((item, index, self) =>
         index === self.findIndex(t => t.番号 === item.番号)
-    );
+    ); // 去重后的 dataList["全部分类"]
 
     var uniqueByqbfl = dataList['全部分类'].filter((item, index, self) =>
         index === self.findIndex(t => t.番号 === item.番号)
@@ -456,7 +459,7 @@ randomBtn.onclick = function () {
 
     if (!historyArr.includes(randomData.番号)) {
         historyArr.push(randomData.番号);
-        historyArrTitle.push(randomData.番号 + " " + randomData.名称 + " " + randomData.演员)
+        historyArrTitle.push(randomData.番号 + " " + randomData.名称 + " " + randomData.演员 + " 收藏人数 " + randomData.收藏人数)
         saveHistory();
         renderHistory();
     } else {
@@ -544,7 +547,8 @@ function renderHistory() {
         console.log(superMax.find(d => d.番号 === item.toUpperCase()));
         item = superMax.find(d => d.番号 === item.toUpperCase())
         if (item) {
-            historyArrTitle.push(item.番号 + " " + item.名称 + " " + item.演员)
+            //historyArrTitle.push(item.番号 + " " + item.名称 + " " + item.演员)
+            historyArrTitle.push(item.番号 + " " + item.名称 + " " + item.演员 + " 收藏人数 " + item.收藏人数)
             console.log('historyArrTitle 新增番号: ' + item.番号)
             return item;
         }
@@ -752,7 +756,8 @@ function renderFavorites() {
         console.log(superMax.find(d => d.番号 === item.toUpperCase()));
         item = superMax.find(d => d.番号 === item.toUpperCase())
         if (item) {
-            historyArrTitle.push(item.番号 + " " + item.名称 + " " + item.演员)
+            // historyArrTitle.push(item.番号 + " " + item.名称 + " " + item.演员)
+            historyArrTitle.push(item.番号 + " " + item.名称 + " " + item.演员 + " 收藏人数 " + item.收藏人数)
             console.log('已移至黑名单: ' + item.番号)
             return item;
         }
@@ -935,7 +940,8 @@ function renderLaji() {
 
         item = superMax.find(d => d.番号 === item.toUpperCase())
         if (item) {
-            historyArrTitle.push(item.番号 + " " + item.名称 + " " + item.演员)
+            // historyArrTitle.push(item.番号 + " " + item.名称 + " " + item.演员)
+            historyArrTitle.push(item.番号 + " " + item.名称 + " " + item.演员 + " 收藏人数 " + item.收藏人数)
             console.log('historyArrTitle 新增番号: ' + item.番号)
             return item;
         }
@@ -1246,7 +1252,8 @@ function customSearchEvent() {
         console.log("customSearchEvent() 新增番号: " + superMax.find(d => d.番号 === item.toUpperCase()));
         item = superMax.find(d => d.番号 === item.toUpperCase())
         if (item) {
-            historyArrTitle.push(item.番号 + " " + item.名称 + " " + item.演员)
+            // historyArrTitle.push(item.番号 + " " + item.名称 + " " + item.演员)
+            historyArrTitle.push(item.番号 + " " + item.名称 + " " + item.演员 + " 收藏人数 " + item.收藏人数)
             console.log('historyArrTitle 新增番号: ' + item.番号)
             return item;
         }
@@ -1282,7 +1289,8 @@ function customSearchEvent() {
 
         var list = []
         list.push(customSearchEventCode)
-        var temp = dataList['全部分类']
+        //// var temp = dataList['全部分类']
+        var temp = superMax
         // dataList['出轨🍷']
 
         window.list = list;
@@ -1302,7 +1310,7 @@ function customSearchEvent() {
                     matchedTemp.名称,
                     matchedTemp.演员 === "-" ? "" : matchedTemp.演员
                 ].join(" ").trim();
-                historyArrTitle.push(matchedTemp.番号 + " " + matchedTemp.名称 + " " + matchedTemp.演员)
+                historyArrTitle.push(matchedTemp.番号 + " " + matchedTemp.名称 + " " + matchedTemp.演员 + " 收藏人数 " + matchedTemp.收藏人数)
                 return tempKeywords
             } else {
                 historyArrTitle.push(customSearchEventCode); // 问题出在这里
@@ -1419,7 +1427,7 @@ function historyItem_percent() {
     const favcountHas = percentAB(uniqueById, favoritesArr, 'cf')
     document.getElementById('favcountHas').textContent = favcountHas
     document.getElementById('selectArrcountFav').textContent = uniqueById.length
-    document.getElementById('icount').textContent = uniqueById.length
+    document.getElementById('icount').textContent = superMax.length
     console.log(`已抽取番号数量: ${matchedCount}`);
     console.log(`匹配比例: ${proportion.toFixed(4)}%`);
     console.log("数组名称: " + "dataList['" + selectedCategory + "']");
@@ -1645,7 +1653,7 @@ var temp = 0
 
 
 
-// 对比一周内新增数据
+// 对比30天内新增数据
 // Start 
 
 
@@ -1726,10 +1734,10 @@ setTimeout(() => {
             // 对比结果判断
             if (currentLength > baseline) {
                 comparisonMessage += `\n结果: length **新增了** ${currentLength - baseline}。`;
-                document.getElementById('yesterday').innerText = "，30天内新增" + (currentLength - baseline) + "部"; // 改变说明
+                document.getElementById('yesterday').innerText = "；（30天内）自您首次打开本页面以来，累计新增" + (currentLength - baseline) + "部"; // 改变说明
             } else if (currentLength < baseline) {
                 comparisonMessage += `\n结果: length **减少了** ${baseline - currentLength}。`;
-                document.getElementById('yesterday').innerText = "，30天内减少" + (currentLength - baseline) + "部";  // 改变说明
+                document.getElementById('yesterday').innerText = "；（30天内）自您首次打开本页面以来，累计减少" + (currentLength - baseline) + "部";  // 改变说明
             } else {
                 comparisonMessage += `\n结果: length **与基准组值保持一致**。`;
             }
@@ -1741,10 +1749,10 @@ setTimeout(() => {
 
     })();
 
-}, 5000)
+}, 10000)
 
 
-// 对比一周内新增数据
+// 对比30天内新增数据
 // END
 
 
